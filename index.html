@@ -28,12 +28,12 @@
 
 <div class="container">
     <h1>فوشيا - FUCHSIA</h1>
-    <p style="color: #666;">إدارة المبيعات السحابية</p>
+    <p style="color: #666;">نظام المبيعات السحابي</p>
 
     <div class="input-box no-print">
-        <label>اختر المنتج:</label>
+        <label>اختر المنتج من السحاب:</label>
         <select id="productSelect">
-            <option value="">⏳ جاري جلب المنتجات من السحاب...</option>
+            <option value="">⏳ جاري جلب المنتجات...</option>
         </select>
         <label>الكمية:</label>
         <input type="number" id="qty" value="1" min="1">
@@ -52,16 +52,16 @@
         <tbody id="invoiceBody"></tbody>
     </table>
 
-    <div class="total-area">الإجمالي: <span id="finalTotal">0</span> ج.م</div>
+    <div class="total-area">الإجمالي النهائي: <span id="finalTotal">0</span> ج.م</div>
 
-    <button class="btn-print no-print" onclick="processAndPrint()">🖨️ حفظ وخصم وطباعة</button>
+    <button class="btn-print no-print" onclick="processAndPrint()">🖨️ حفظ وخصم من السحاب وطباعة</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-// إعدادات Fuchsia-Web الخاصة بك من الصورة
+// إعدادات Firebase الخاصة بمشروعك Fuchsia-Web
 const firebaseConfig = {
   apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
   authDomain: "fuchsia-web-e1ffe.firebaseapp.com",
@@ -78,7 +78,7 @@ const db = firebase.database();
 let cloudProducts = {}; 
 let invoiceItems = []; 
 
-// جلب المنتجات من السحاب وتحديث القائمة فوراً
+// جلب المنتجات من السحاب وتحديث القائمة
 db.ref("products").on("value", (snapshot) => {
     cloudProducts = snapshot.val() || {};
     const select = document.getElementById("productSelect");
@@ -94,10 +94,10 @@ db.ref("products").on("value", (snapshot) => {
 function addToInvoice() {
     const productId = document.getElementById("productSelect").value;
     const qty = parseInt(document.getElementById("qty").value);
-    if (!productId || qty <= 0) return alert("اختر منتجاً!");
+    if (!productId || qty <= 0) return alert("يرجى اختيار منتج!");
 
     const p = cloudProducts[productId];
-    if (qty > p.stock) return alert("عفواً! المخزن لا يكفي.");
+    if (qty > p.stock) return alert("عفواً! الكمية في المخزن لا تكفي.");
 
     invoiceItems.push({ id: productId, name: p.name, price: p.price, qty: qty, total: p.price * qty });
     render();
@@ -116,7 +116,7 @@ function render() {
 
 async function processAndPrint() {
     if (invoiceItems.length === 0) return alert("الفاتورة فارغة!");
-    if (!confirm("تأكيد البيع والخصم من السحاب؟")) return;
+    if (!confirm("تأكيد العملية والخصم من السحاب؟")) return;
 
     try {
         for (let item of invoiceItems) {
@@ -126,7 +126,7 @@ async function processAndPrint() {
         alert("تمت العملية بنجاح!");
         window.print();
         location.reload();
-    } catch (e) { alert("خطأ في الاتصال بالسحاب!"); }
+    } catch (e) { alert("حدث خطأ في الاتصال بالسحاب!"); }
 }
 </script>
 </body>
