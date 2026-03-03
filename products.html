@@ -2,50 +2,126 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة المنتجات - فوشيا</title>
-    <link rel="stylesheet" href="style.css">
+    <title>فوشيا - إدارة المخزن</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; text-align: center; }
+        .nav { margin-bottom: 20px; }
+        .nav a { text-decoration: none; color: #7209b7; margin: 0 10px; font-weight: bold; }
+        .container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+        th { background-color: #7209b7; color: white; }
+        .btn-delete { background: #dc3545; padding: 5px 10px; font-size: 12px; }
+    </style>
 </head>
 <body>
 
-<div class="no-print-nav" style="margin-bottom:15px; text-align: center;">
-    <a href="index.html">🧾 Invoice</a> |
-    <a href="products.html">📦 Products</a> |
-    <a href="history.html">📑 History</a>
+<div class="nav">
+    <a href="index.html">🧾 الفاتورة</a> | <a href="history.html">📊 التقارير</a>
 </div>
 
-<div class="invoice" style="max-width: 500px; margin: auto;">
-    <h2>📦 إدارة المنتجات السحابية</h2>
-
-    <input id="pname" placeholder="اسم المنتج">
-    <input id="pprice" type="number" placeholder="السعر">
-    <input id="pstock" type="number" placeholder="الكمية في المخزن">
-
-    <div style="margin: 10px 0; border: 1px dashed #007bff; padding: 10px; border-radius: 8px;">
-        <input type="file" id="excelFile" accept=".xlsx, .xls">
-        <button onclick="importFromExcel()" style="background:#007bff; color:white; border:none; padding:5px 10px; cursor:pointer;">استيراد إكسيل</button>
+<div class="container">
+    <h1>📦 إدارة مخزن فوشيا</h1>
+    
+    <div class="input-group">
+        <input type="text" id="pName" placeholder="اسم المنتج (مثلاً: طرحة)">
+        <input type="number" id="pPrice" placeholder="السعر">
+        <input type="number" id="pStock" placeholder="الكمية">
+        <button onclick="saveProduct()">حفظ المنتج ✅</button>
     </div>
 
-    <button id="addBtn" onclick="addProduct()" style="background: #28a745; color: white; padding: 10px; cursor: pointer; width: 100%; border: none; border-radius: 5px; margin-top:10px;">حفظ في السحاب</button>
-
-    <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+    <table>
         <thead>
-            <tr style="background: #eee;">
+            <tr>
                 <th>الاسم</th>
                 <th>السعر</th>
                 <th>المخزن</th>
-                <th>إجراءات</th>
+                <th>إجراء</th>
             </tr>
         </thead>
-        <tbody id="plist"></tbody>
+        <tbody id="productTable"></tbody>
     </table>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
+  authDomain: "fuchsia-web-e1ffe.firebaseapp.com",
+  databaseURL: "https://fuchsia-web-e1ffe-default-rtdb.firebaseio.com",
+  projectId: "fuchsia-web-e1ffe",
+  storageBucket: "fuchsia-web-e1ffe.firebasestorage.app",
+  messagingSenderId: "1036149958008",
+  appId: "1:1036149958008:web:673873d603b7fcbb29148d"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-<script src="products.js"></script>
+let allProducts = {};
+
+// جلب وعرض المنتجات
+db.ref("products").on("value", (snapshot) => {
+    allProducts = snapshot.val() || {};
+    const tbody = document.getElementById("productTable");
+    tbody.innerHTML = "";
+    
+    Object.keys(allProducts).forEach(id => {
+        const p = allProducts[id];
+        tbody.innerHTML += `
+            <tr>
+                <td>${p.name}</td>
+                <td>${p.price} ج.م</td>
+                <td style="font-weight:bold; color:${p.stock < 5 ? 'red' : 'black'}">${p.stock}</td>
+                <td><button class="btn-delete" onclick="deleteProduct('${id}')">حذف 🗑️</button></td>
+            </tr>`;
+    });
+});
+
+async function saveProduct() {
+    const name = document.getElementById("pName").value.trim();
+    const price = parseFloat(document.getElementById("pPrice").value);
+    const stock = parseInt(document.getElementById("pStock").value);
+
+    if (!name || !price || isNaN(stock)) return alert("كمل البيانات يا بطل!");
+
+    // البحث عن منتج بنفس الاسم (تجاهل المسافات وحالة الأحرف)
+    let existingId = null;
+    Object.keys(allProducts).forEach(id => {
+        if (allProducts[id].name.toLowerCase() === name.toLowerCase()) {
+            existingId = id;
+        }
+    });
+
+    if (existingId) {
+        // لو المنتج موجود -> زود الكمية وحدث السعر
+        const newStock = allProducts[existingId].stock + stock;
+        await db.ref("products/" + existingId).update({
+            price: price, // يحدث السعر لو اتغير
+            stock: newStock
+        });
+        alert("تم تحديث كمية المنتج الموجود فعلاً بنجاح! ✅");
+    } else {
+        // لو مش موجود -> ضيفه جديد
+        await db.ref("products").push({ name, price, stock });
+        alert("تم إضافة منتج جديد بنجاح! ✨");
+    }
+
+    // تصفير الخانات
+    document.getElementById("pName").value = "";
+    document.getElementById("pPrice").value = "";
+    document.getElementById("pStock").value = "";
+}
+
+function deleteProduct(id) {
+    if (confirm("هتمسح المنتج ده خالص؟")) {
+        db.ref("products/" + id).remove();
+    }
+}
+</script>
 </body>
 </html>
