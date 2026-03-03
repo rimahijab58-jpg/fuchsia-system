@@ -1,54 +1,55 @@
-function getProducts() { return JSON.parse(localStorage.getItem("products")) || []; }
-function saveProducts(p) { localStorage.setItem("products", JSON.stringify(p)); }
+// products.js
 
-function addProduct() {
-const n = document.getElementById("pname");
-const p = document.getElementById("pprice");
-const s = document.getElementById("pstock");
-let products = getProducts();
-products.push({ name: n.value, price: Number(p.value), stock: Number(s.value) });
-saveProducts(products);
-n.value=""; p.value=""; s.value="";
-loadProducts();
+function getProducts() {
+return JSON.parse(localStorage.getItem("products")) || [];
 }
 
+function saveProducts(products) {
+localStorage.setItem("products", JSON.stringify(products));
+}
+
+function addProduct() {
+const pnameInput = document.getElementById("pname");
+const ppriceInput = document.getElementById("pprice");
+const pstockInput = document.getElementById("pstock");
+
+}
+
+// دالة استيراد الإكسيل المضافة للكود الأصلي
 function importFromExcel() {
 const fileInput = document.getElementById('excelFile');
-if (fileInput.files.length === 0) return alert("اختار ملف أولاً");
-const reader = new FileReader();
-reader.onload = function(e) {
-const data = new Uint8Array(e.target.result);
-const workbook = XLSX.read(data, {type: 'array'});
-const sheet = workbook.Sheets[workbook.SheetNames[0]];
-const json = XLSX.utils.sheet_to_json(sheet);
-let products = getProducts();
-json.forEach(row => {
-let name = row["الاسم"] || row["name"];
-let price = row["السعر"] || row["price"];
-let stock = row["الكمية"] || row["stock"] || 0;
-if(name && price) products.push({name, price: Number(price), stock: Number(stock)});
-});
-saveProducts(products);
-loadProducts();
-alert("تم الاستيراد بنجاح");
-};
-reader.readAsArrayBuffer(fileInput.files[0]);
+if (!fileInput || fileInput.files.length === 0) {
+alert("يرجى اختيار ملف إكسيل أولاً");
+return;
+}
+
 }
 
 function loadProducts() {
 let products = getProducts();
 let list = document.getElementById("plist");
+if(!list) return;
 list.innerHTML = "";
-products.forEach((p, i) => {
-list.innerHTML += <tr><td>${p.name}</td><td>${p.price}</td><td>${p.stock}</td><td><button onclick="deleteProduct(${i})">🗑️</button></td></tr>;
-});
+
 }
 
-function deleteProduct(i) {
-let p = getProducts();
-p.splice(i, 1);
-saveProducts(p);
+function editProduct(index) {
+let products = getProducts();
+let p = products[index];
+document.getElementById("pname").value = p.name;
+document.getElementById("pprice").value = p.price;
+document.getElementById("pstock").value = p.stock;
+document.getElementById("pname").setAttribute("data-edit-index", index);
+document.querySelector("button[onclick='addProduct()']").innerText = "تحديث المنتج";
+}
+
+function deleteProduct(index) {
+if (confirm("هل تريد حذف هذا المنتج؟")) {
+let products = getProducts();
+products.splice(index, 1);
+saveProducts(products);
 loadProducts();
+}
 }
 
 window.onload = loadProducts;
