@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فوشيا - فاتورة السحاب</title>
+    <title>فوشيا - FUCHSIA</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
         .nav { margin-bottom: 20px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -28,7 +28,7 @@
 
 <div class="container">
     <h1>فوشيا - FUCHSIA</h1>
-    <p style="color: #666;">نظام المبيعات السحابي</p>
+    <p style="color: #666;">إدارة المبيعات السحابية</p>
 
     <div class="input-box no-print">
         <label>اختر المنتج من السحاب:</label>
@@ -61,7 +61,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-// إعدادات Firebase الخاصة بمشروعك Fuchsia-Web
+// الإعدادات مأخوذة مباشرة من صور مشروعك
 const firebaseConfig = {
   apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
   authDomain: "fuchsia-web-e1ffe.firebaseapp.com",
@@ -78,7 +78,7 @@ const db = firebase.database();
 let cloudProducts = {}; 
 let invoiceItems = []; 
 
-// جلب المنتجات من السحاب وتحديث القائمة
+// سحب المنتجات من قاعدة البيانات السحابية
 db.ref("products").on("value", (snapshot) => {
     cloudProducts = snapshot.val() || {};
     const select = document.getElementById("productSelect");
@@ -97,7 +97,7 @@ function addToInvoice() {
     if (!productId || qty <= 0) return alert("يرجى اختيار منتج!");
 
     const p = cloudProducts[productId];
-    if (qty > p.stock) return alert("عفواً! الكمية في المخزن لا تكفي.");
+    if (qty > p.stock) return alert("الكمية المطلوبة أكبر من المتاح بالمخزن!");
 
     invoiceItems.push({ id: productId, name: p.name, price: p.price, qty: qty, total: p.price * qty });
     render();
@@ -116,7 +116,7 @@ function render() {
 
 async function processAndPrint() {
     if (invoiceItems.length === 0) return alert("الفاتورة فارغة!");
-    if (!confirm("تأكيد العملية والخصم من السحاب؟")) return;
+    if (!confirm("تأكيد العملية؟ سيتم الخصم من المخزن السحابي.")) return;
 
     try {
         for (let item of invoiceItems) {
@@ -126,7 +126,7 @@ async function processAndPrint() {
         alert("تمت العملية بنجاح!");
         window.print();
         location.reload();
-    } catch (e) { alert("حدث خطأ في الاتصال بالسحاب!"); }
+    } catch (e) { alert("خطأ في الاتصال بقاعدة البيانات!"); }
 }
 </script>
 </body>
