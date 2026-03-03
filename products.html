@@ -10,18 +10,25 @@
 
 <div class="no-print-nav" style="margin-bottom:15px; text-align: center;">
     <a href="index.html">🧾 Invoice</a> |
-    <a href="products.html">📦 Products</a> |
+    <a href="products.html" style="font-weight:bold;">📦 Products</a> |
     <a href="history.html">📑 History</a>
 </div>
 
 <div class="invoice" style="max-width: 500px; margin: auto;">
     <h2>📦 إدارة المنتجات</h2>
 
-    <input id="pname" placeholder="اسم المنتج">
-    <input id="pprice" type="number" placeholder="السعر">
-    <input id="pstock" type="number" placeholder="الكمية في المخزن">
+    <div style="background:#fff; padding:15px; border-radius:8px; border:1px solid #ddd; margin-bottom:15px;">
+        <input id="pname" placeholder="اسم المنتج" style="width:95%; padding:8px; margin-bottom:5px;">
+        <input id="pprice" type="number" placeholder="السعر" style="width:95%; padding:8px; margin-bottom:5px;">
+        <input id="pstock" type="number" placeholder="الكمية في المخزن" style="width:95%; padding:8px; margin-bottom:5px;">
+        <button id="addBtn" onclick="addProduct()" style="background: #28a745; color: white; padding: 10px; cursor: pointer; width: 100%; border: none; border-radius: 5px;">إضافة / تحديث منتج</button>
+    </div>
 
-    <button id="addBtn" onclick="addProduct()" style="background: #28a745; color: white; padding: 10px; cursor: pointer; width: 100%; border: none; border-radius: 5px; margin-top:10px;">إضافة منتج</button>
+    <div style="margin: 15px 0; padding: 10px; border: 1px dashed #007bff; text-align: center; border-radius: 8px; background:#f9fcff;">
+        <label style="font-weight:bold; color:#007bff;">📥 استيراد من إكسيل:</label><br>
+        <input type="file" id="excelFile" accept=".xlsx, .xls" style="margin: 10px 0;">
+        <button onclick="importFromExcel()" style="background:#007bff; color:white; border:none; padding:5px 15px; border-radius:4px; cursor:pointer;">بدء الاستيراد</button>
+    </div>
 
     <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
         <thead>
@@ -36,6 +43,7 @@
     </table>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="products.js"></script>
 </body>
 </html>
