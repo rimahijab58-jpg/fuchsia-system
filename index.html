@@ -2,174 +2,193 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>نظام فاتورة فوشيا - للموبايل</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فاتورة فوشيا - الربط السحابي</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* إعدادات الموبايل (تجعل الجداول قابلة للتمرير) */
-        @media screen and (max-width: 600px) {
-            .invoice { padding: 10px; margin: 5px; width: auto; }
-            table { display: block; overflow-x: auto; white-space: nowrap; } /* سر الموبايل */
-            input { font-size: 16px !important; } /* تمنع الزووم التلقائي في الآيفون */
-            .add-btn, .print-btn { padding: 15px; font-size: 18px; }
-        }
-
-        /* إعدادات الطباعة (بدون تغيير) */
-        @media print {
-            .no-print, .no-print-nav { display: none !important; }
-            body { background: white; padding: 0; margin: 0; }
-            .invoice-container { 
-                width: 100% !important; 
-                max-width: 80mm; 
-                padding: 10px; 
-                display: block !important;
-            }
-            #printArea { display: block !important; }
-        }
-
-        #printArea { display: none; }
-        .invoice table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .invoice th, .invoice td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        .invoice input { width: 90px; padding: 8px; border: 1px solid #ccc; text-align: center; border-radius: 4px; }
-
-        /* تنسيق الفاتورة المطبوعة */
-        .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #000; padding-bottom: 15px; margin-bottom: 15px; }
-        .right-section { text-align: right; width: 40%; padding-right: 5px; }
-        .brand-title { font-size: 28px; font-weight: bold; margin: 0; }
-        .left-section { text-align: left; width: 40%; font-size: 11px; font-weight: bold; padding-left: 10px; line-height: 1.6; }
-        .qr-section { width: 20%; text-align: center; }
-
-        .items-list { width: 100%; border-collapse: collapse; }
-        .items-list th { border-bottom: 1px solid #000; padding: 5px; font-size: 12px; }
-        .items-list td { padding: 8px 0; font-size: 13px; text-align: center; border-bottom: 1px dashed #eee; }
-
-        .google-search { margin-top: 25px; display: flex; justify-content: center; }
-        .search-box { border: 1px solid #dfe1e5; border-radius: 20px; padding: 5px 15px; display: flex; align-items: center; font-size: 11px; }
+        /* تنسيق بسيط للتأكد من المظهر */
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .invoice { max-width: 800px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        .no-print { margin-top: 20px; }
+        select, input { padding: 8px; margin: 5px; width: 200px; }
+        .btn-add { background: #007bff; color: white; border: none; cursor: pointer; padding: 10px 20px; }
+        .btn-save { background: #28a745; color: white; border: none; cursor: pointer; padding: 15px; width: 100%; font-size: 18px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="no-print-nav" style="text-align: center; padding: 10px; background: #eee; margin-bottom: 10px;">
-    <a href="index.html" style="text-decoration:none;">🏠 فاتورة</a> | 
-    <a href="products.html" style="text-decoration:none;">📦 مخزن</a> | 
-    <a href="history.html" style="text-decoration:none;">📑 سجل</a>
-</div>
-
-<div class="invoice no-print">
-    <h2 style="text-align: center;">إدخال فاتورة (موبايل)</h2>
-    <div style="margin-bottom:10px;">
-        <label>العميل:</label>
-        <input id="customer" placeholder="Cash Customer" style="width: 70%; display: inline-block;">
-    </div>
-
-    <div style="overflow-x: auto;">
-        <table id="invoiceTable">
-            <thead>
-                <tr>
-                    <th>الصنف</th>
-                    <th>سعر</th>
-                    <th>كمية</th>
-                    <th>خصم</th>
-                    <th>إجمالي</th>
-                    <th>حذف</th>
-                </tr>
-            </thead>
-            <tbody id="items"></tbody>
-        </table>
-    </div>
-
-    <button class="add-btn" onclick="addRow()" style="margin-top: 15px; width:100%; height: 50px; background:#007bff; color:white; border:none; border-radius:8px; font-weight:bold;">+ إضافة صنف</button>
-    <h3 id="grandTotal" style="text-align: center; background:#f8f9fa; padding:15px; border-radius:8px; margin-top:10px;">Total: 0</h3>
-    <button class="print-btn" onclick="saveAndPrint()" style="width:100%; height: 60px; background:#28a745; color:white; border:none; border-radius:8px; font-weight:bold; font-size:20px;">حفظ وطباعة 🖨️</button>
-</div>
-
-<div id="printArea" class="invoice-container">
-    <div class="print-header">
-        <div class="right-section">
-            <h1 class="brand-title">فوشيا</h1>
-            <div style="font-size: 11px; font-weight: bold;">رقم: <span id="p-inv-id"></span><br>التاريخ: <span id="p-date"></span></div>
-        </div>
-        <div class="qr-section">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://chat.whatsapp.com/EnzS1EbY5BfAl6rQsHqiPK" width="70">
-        </div>
-        <div class="left-section">طرحة - خمار - زي شرعي<br>سمسطا - ش بورسعيد<br>01287863711</div>
-    </div>
-    <p style="font-size: 13px; font-weight: bold; margin: 10px 5px;">العميل: <span id="p-customer"></span></p>
-    <table class="items-list">
-        <thead><tr><th style="text-align: right;">الصنف</th><th>سعر</th><th>كمية</th><th>إجمالي</th></tr></thead>
-        <tbody id="printItems"></tbody>
-    </table>
-    <h3 style="text-align: left; border-top: 1px solid #000; padding-top: 10px;">الإجمالي: <span id="p-grand-total">0</span></h3>
-    <div class="google-search"><div class="search-box"><img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" width="14" style="margin-left: 8px;"><b>فوشيا سمسطا</b></div></div>
-    <p style="text-align: center; font-size: 10px; margin-top: 15px;">شكراً لزيارتكم</p>
-</div>
-
-<script src="invoice.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-<script src="script.js"></script> 
-</body>
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فاتورة فوشيا السحابية</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<div class="no-print-nav" style="margin-bottom:15px; text-align: center;">
-    <a href="index.html">🧾 Invoice</a> |
-    <a href="products.html">📦 Products</a> |
-    <a href="history.html">📑 History</a>
+<div class="no-print-nav" style="text-align: center; margin-bottom: 20px;">
+    <a href="index.html">🧾 الفاتورة</a> | 
+    <a href="products.html">📦 المخزن (المنتجات)</a>
 </div>
 
 <div class="invoice">
-    <div class="header">
-        <h1>فوشيا - FUCHSIA</h1>
-        <p>إدارة المبيعات السحابية</p>
-    </div>
+    <h2 style="text-align: center;">🧾 نظام فواتير فوشيا السحابي</h2>
 
-    <div class="input-group no-print">
+    <div class="no-print" style="background: #f0f4f8; padding: 15px; border-radius: 8px;">
         <label>اختر المنتج:</label>
         <select id="productSelect">
-            <option value="">جاري تحميل المنتجات من السحاب...</option>
+            <option value="">جاري تحميل الأصناف...</option>
         </select>
         
         <label>الكمية:</label>
         <input type="number" id="qty" value="1" min="1">
         
-        <button onclick="addToInvoice()" style="background: #007bff; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; width: 100%; margin-top: 10px;">إضافة للفاتورة</button>
+        <button class="btn-add" onclick="addToInvoice()">إضافة الصنف للفاتورة ➕</button>
     </div>
 
     <table id="invoiceTable">
         <thead>
-            <tr>
+            <tr style="background: #eee;">
                 <th>المنتج</th>
                 <th>السعر</th>
                 <th>الكمية</th>
                 <th>الإجمالي</th>
-                <th class="no-print">حذف</th>
+                <th class="no-print">إجراء</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="invoiceBody">
+            </tbody>
     </table>
 
-    <div class="total-section">
-        <h3>الإجمالي النهائي: <span id="finalTotal">0</span> ج.م</h3>
+    <div style="margin-top: 20px; text-align: right;">
+        <h3 style="color: #d9534f;">الإجمالي النهائي: <span id="finalTotal">0</span> ج.م</h3>
     </div>
 
-    <button class="no-print" onclick="processAndPrint()" style="background: #28a745; color: white; padding: 15px; width: 100%; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; margin-top: 20px;">حفظ وخصم من المخزن وطباعة ✅</button>
+    <button onclick="processAndPrint()" class="btn-save no-print">حفظ وخصم من المخزن السحابي وطباعة ✅</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-<script src="script.js"></script>
+<script>
+// 1. بيانات الربط الخاصة بك (تأكد أنها نفس التي في صفحة المنتجات)
+const firebaseConfig = {
+  apiKey: "AIzaSyB" + "...", // يفضل نسخ المفتاح كاملاً من Firebase
+  authDomain: "fuchsia-web-e1ffe.firebaseapp.com",
+  databaseURL: "https://fuchsia-web-e1ffe-default-rtdb.firebaseio.com",
+  projectId: "fuchsia-web-e1ffe",
+  storageBucket: "fuchsia-web-e1ffe.appspot.com",
+  messagingSenderId: "1036149958008",
+  appId: "1:1036149958008:web:673873d603b7fcbb29148d"
+};
 
-</body>
-</html>
+// تشغيل Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.database();
+
+let cloudProducts = {}; // لتخزين بيانات المخزن
+let invoiceItems = []; // لتخزين عناصر الفاتورة الحالية
+
+// 2. جلب المنتجات من السحاب وتحديث القائمة
+db.ref("products").on("value", (snapshot) => {
+    cloudProducts = snapshot.val() || {};
+    const select = document.getElementById("productSelect");
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">-- اختر صنف --</option>';
+    Object.keys(cloudProducts).forEach(id => {
+        let p = cloudProducts[id];
+        select.innerHTML += `<option value="${id}">${p.name} (المتاح: ${p.stock})</option>`;
+    });
+});
+
+// 3. دالة إضافة صنف للفاتورة
+function addToInvoice() {
+    const select = document.getElementById("productSelect");
+    const qtyInput = document.getElementById("qty");
+    const productId = select.value;
+    const qty = parseInt(qtyInput.value);
+
+    if (!productId || qty <= 0) {
+        alert("يرجى اختيار منتج وكمية صحيحة");
+        return;
+    }
+
+    const product = cloudProducts[productId];
+
+    // التأكد من توفر كمية
+    if (qty > product.stock) {
+        alert("الكمية المطلوبة غير متوفرة في المخزن السحابي!");
+        return;
+    }
+
+    // إضافة المنتج للقائمة
+    invoiceItems.push({
+        id: productId,
+        name: product.name,
+        price: product.price,
+        qty: qty,
+        total: product.price * qty
+    });
+
+    renderTable();
+    qtyInput.value = 1; // إعادة تعيين الكمية لـ 1
+}
+
+// 4. رسم جدول الفاتورة
+function renderTable() {
+    const tbody = document.getElementById("invoiceBody");
+    const totalDisp = document.getElementById("finalTotal");
+    tbody.innerHTML = "";
+    let grandTotal = 0;
+
+    invoiceItems.forEach((item, index) => {
+        grandTotal += item.total;
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.name}</td>
+                <td>${item.price}</td>
+                <td>${item.qty}</td>
+                <td>${item.total}</td>
+                <td class="no-print"><button onclick="removeItem(${index})" style="color:red; cursor:pointer;">X</button></td>
+            </tr>
+        `;
+    });
+    totalDisp.innerText = grandTotal;
+}
+
+function removeItem(index) {
+    invoiceItems.splice(index, 1);
+    renderTable();
+}
+
+// 5. حفظ العملية وخصم المخزن
+async function processAndPrint() {
+    if (invoiceItems.length === 0) {
+        alert("الفاتورة فارغة!");
+        return;
+    }
+
+    if (!confirm("هل تريد إتمام البيع وخصم الكميات من السحاب؟")) return;
+
+    try {
+        for (let item of invoiceItems) {
+            let currentStock = cloudProducts[item.id].stock;
+            let newStock = currentStock - item.qty;
+
+            // تحديث السحاب فوراً
+            await db.ref("products/" + item.id).update({
+                stock: newStock
+            });
+        }
+
+        alert("تم الخصم من المخزن السحابي بنجاح!");
+        window.print(); // فتح نافذة الطباعة
+        
+        // تصفير الفاتورة
+        invoiceItems = [];
+        renderTable();
+
+    } catch (error) {
+        alert("حدث خطأ في الاتصال بالسحاب!");
+        console.error(error);
+    }
+}
+</script>
 </body>
 </html>
