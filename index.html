@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فوشيا - فاتورة السحاب النهائية</title>
+    <title>فوشيا - الفاتورة السحابية</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
         .nav { margin-bottom: 20px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .nav a { text-decoration: none; color: #007bff; font-weight: bold; margin: 0 10px; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { color: #333; margin-bottom: 5px; }
+        .container { max-width: 550px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .input-box { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee; text-align: right; }
         select, input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
         .btn-add { background: #007bff; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
@@ -24,8 +23,7 @@
 <body>
 
 <div class="nav no-print">
-    <a href="index.html">🧾 الفاتورة</a> | 
-    <a href="products.html">📦 المنتجات والمخزن</a>
+    <a href="index.html">🧾 الفاتورة</a> | <a href="products.html">📦 المنتجات</a>
 </div>
 
 <div class="container">
@@ -33,11 +31,11 @@
     <p style="color: #666;">نظام المبيعات السحابي</p>
 
     <div class="input-box no-print">
-        <label>اختر الصنف من المخزن:</label>
+        <label>الصنف:</label>
         <select id="productSelect">
-            <option value="">⏳ جاري تحميل المنتجات...</option>
+            <option value="">⏳ جاري تحميل البيانات...</option>
         </select>
-        <label>الكمية المطلوبة:</label>
+        <label>الكمية:</label>
         <input type="number" id="qty" value="1" min="1">
         <button class="btn-add" onclick="addToInvoice()">+ إضافة للفاتورة</button>
     </div>
@@ -46,7 +44,7 @@
         <thead>
             <tr>
                 <th>الصنف</th>
-                <th>السعر</th>
+                <th>سعر</th>
                 <th>كمية</th>
                 <th>إجمالي</th>
             </tr>
@@ -54,18 +52,16 @@
         <tbody id="invoiceBody"></tbody>
     </table>
 
-    <div class="total-area">
-        الإجمالي النهائي: <span id="finalTotal">0</span> ج.م
-    </div>
+    <div class="total-area">الإجمالي: <span id="finalTotal">0</span> ج.م</div>
 
-    <button class="btn-print no-print" onclick="processAndPrint()">🖨️ حفظ وخصم من المخزن وطباعة</button>
+    <button class="btn-print no-print" onclick="processAndPrint()">🖨️ حفظ وخصم وطباعة</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-// إعدادات Firebase الخاصة بك (المعدلة بالـ API Key الجديد)
+// الإعدادات اللي بعتها بالظبط
 const firebaseConfig = {
   apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
   authDomain: "fuchsia-web-e1ffe.firebaseapp.com",
@@ -76,92 +72,59 @@ const firebaseConfig = {
   appId: "1:1036149958008:web:673873d603b7fcbb29148d"
 };
 
-// بدء التشغيل
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const db = firebase.database();
 
 let cloudProducts = {}; 
 let invoiceItems = []; 
 
-// 1. سحب المنتجات من السحاب وعرضها في القائمة
+// جلب المنتجات من السحاب
 db.ref("products").on("value", (snapshot) => {
     cloudProducts = snapshot.val() || {};
     const select = document.getElementById("productSelect");
-    if (!select) return;
-    
-    select.innerHTML = '<option value="">-- اختر صنف من القائمة --</option>';
+    select.innerHTML = '<option value="">-- اختر منتج --</option>';
     Object.keys(cloudProducts).forEach(id => {
         let p = cloudProducts[id];
-        select.innerHTML += `<option value="${id}">${p.name} (متوفر: ${p.stock})</option>`;
+        select.innerHTML += `<option value="${id}">${p.name} (متاح: ${p.stock})</option>`;
     });
 });
 
-// 2. دالة الإضافة للجدول
 function addToInvoice() {
     const productId = document.getElementById("productSelect").value;
     const qty = parseInt(document.getElementById("qty").value);
-
-    if (!productId || qty <= 0) return alert("يرجى اختيار صنف وكمية!");
+    if (!productId || qty <= 0) return alert("اختر صنف وكمية!");
 
     const product = cloudProducts[productId];
-    if (qty > product.stock) return alert("عفواً! الكمية المطلوبة غير متوفرة حالياً في المخزن.");
+    if (qty > product.stock) return alert("المخزن لا يكفي!");
 
-    invoiceItems.push({
-        id: productId,
-        name: product.name,
-        price: product.price,
-        qty: qty,
-        total: product.price * qty
-    });
-
-    renderTable();
+    invoiceItems.push({ id: productId, name: product.name, price: product.price, qty: qty, total: product.price * qty });
+    render();
 }
 
-function renderTable() {
+function render() {
     const tbody = document.getElementById("invoiceBody");
-    const totalDisp = document.getElementById("finalTotal");
-    tbody.innerHTML = "";
     let grandTotal = 0;
-
-    invoiceItems.forEach((item, index) => {
+    tbody.innerHTML = "";
+    invoiceItems.forEach(item => {
         grandTotal += item.total;
-        tbody.innerHTML += `
-            <tr>
-                <td>${item.name}</td>
-                <td>${item.price}</td>
-                <td>${item.qty}</td>
-                <td>${item.total}</td>
-            </tr>`;
+        tbody.innerHTML += `<tr><td>${item.name}</td><td>${item.price}</td><td>${item.qty}</td><td>${item.total}</td></tr>`;
     });
-    totalDisp.innerText = grandTotal;
+    document.getElementById("finalTotal").innerText = grandTotal;
 }
 
-// 3. الخصم من السحاب والطباعة
 async function processAndPrint() {
     if (invoiceItems.length === 0) return alert("الفاتورة فارغة!");
-    if (!confirm("تأكيد البيع؟ سيتم خصم الكميات من المخزن السحابي الآن.")) return;
+    if (!confirm("تأكيد البيع والخصم من السحاب؟")) return;
 
     try {
         for (let item of invoiceItems) {
-            let currentStock = cloudProducts[item.id].stock;
-            let newStock = currentStock - item.qty;
-            
-            // تحديث الكمية في Firebase
+            let newStock = cloudProducts[item.id].stock - item.qty;
             await db.ref("products/" + item.id).update({ stock: newStock });
         }
-        
-        alert("تم تحديث المخزن بنجاح!");
+        alert("تم البيع بنجاح!");
         window.print();
-        
-        // مسح الفاتورة بعد البيع
-        invoiceItems = [];
-        renderTable();
-        document.getElementById("qty").value = 1;
-
-    } catch (e) { 
-        console.error(e);
-        alert("خطأ في الاتصال بالسحاب!"); 
-    }
+        location.reload();
+    } catch (e) { alert("خطأ في الاتصال!"); }
 }
 </script>
 </body>
