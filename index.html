@@ -3,44 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فوشيا - فاتورة السحاب</title>
+    <title>فوشيا - فاتورة السحاب النهائية</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
         .nav { margin-bottom: 20px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .nav a { text-decoration: none; color: #555; font-weight: bold; margin: 0 10px; }
+        .nav a { text-decoration: none; color: #007bff; font-weight: bold; margin: 0 10px; }
         .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h1 { color: #333; margin-bottom: 5px; }
-        .input-box { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee; }
-        select, input { width: 90%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
-        .btn-add { background: #007bff; color: white; border: none; padding: 12px; width: 95%; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .input-box { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee; text-align: right; }
+        select, input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+        .btn-add { background: #007bff; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { background: #eee; padding: 10px; border-bottom: 2px solid #ddd; }
         td { padding: 10px; border-bottom: 1px solid #eee; }
-        .total-area { margin-top: 20px; font-size: 20px; font-weight: bold; color: #d9534f; }
+        .total-area { margin-top: 20px; font-size: 22px; font-weight: bold; color: #d9534f; }
         .btn-print { background: #28a745; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 18px; margin-top: 15px; font-weight: bold; }
-        @media print { .no-print, .nav, .input-box, .del-btn { display: none; } .container { box-shadow: none; border: none; width: 100%; } }
-        .del-btn { color: red; cursor: pointer; border: none; background: none; font-size: 18px; }
+        @media print { .no-print, .nav, .input-box { display: none; } .container { box-shadow: none; border: none; width: 100%; } }
     </style>
 </head>
 <body>
 
 <div class="nav no-print">
-    <a href="index.html">🧾 Invoice</a> | 
-    <a href="products.html">📦 Products</a> | 
-    <a href="history.html">📑 History</a>
+    <a href="index.html">🧾 الفاتورة</a> | 
+    <a href="products.html">📦 المنتجات والمخزن</a>
 </div>
 
 <div class="container">
     <h1>فوشيا - FUCHSIA</h1>
-    <p style="color: #666;">إدارة المبيعات والمخزن السحابي</p>
+    <p style="color: #666;">نظام المبيعات السحابي</p>
 
     <div class="input-box no-print">
-        <label>اختر الصنف:</label><br>
+        <label>اختر الصنف من المخزن:</label>
         <select id="productSelect">
-            <option value="">جاري تحميل المنتجات...</option>
-        </select><br>
-        <label>الكمية:</label><br>
-        <input type="number" id="qty" value="1" min="1"><br>
+            <option value="">⏳ جاري تحميل المنتجات...</option>
+        </select>
+        <label>الكمية المطلوبة:</label>
+        <input type="number" id="qty" value="1" min="1">
         <button class="btn-add" onclick="addToInvoice()">+ إضافة للفاتورة</button>
     </div>
 
@@ -51,14 +49,13 @@
                 <th>السعر</th>
                 <th>كمية</th>
                 <th>إجمالي</th>
-                <th class="no-print">حذف</th>
             </tr>
         </thead>
         <tbody id="invoiceBody"></tbody>
     </table>
 
     <div class="total-area">
-        الإجمالي: <span id="finalTotal">0</span> ج.م
+        الإجمالي النهائي: <span id="finalTotal">0</span> ج.م
     </div>
 
     <button class="btn-print no-print" onclick="processAndPrint()">🖨️ حفظ وخصم من المخزن وطباعة</button>
@@ -68,45 +65,46 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-// بيانات الربط الخاصة بك (Fuchsia-Web)
+// إعدادات Firebase الخاصة بك (المعدلة بالـ API Key الجديد)
 const firebaseConfig = {
-  apiKey: "AIzaSyB" + "673873d603b7fcbb29148d", // تأكد من المفتاح الكامل لو أمكن
+  apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
   authDomain: "fuchsia-web-e1ffe.firebaseapp.com",
   databaseURL: "https://fuchsia-web-e1ffe-default-rtdb.firebaseio.com",
   projectId: "fuchsia-web-e1ffe",
-  storageBucket: "fuchsia-web-e1ffe.appspot.com",
+  storageBucket: "fuchsia-web-e1ffe.firebasestorage.app",
   messagingSenderId: "1036149958008",
   appId: "1:1036149958008:web:673873d603b7fcbb29148d"
 };
 
+// بدء التشغيل
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const db = firebase.database();
 
 let cloudProducts = {}; 
 let invoiceItems = []; 
 
-// 1. جلب المنتجات من السحاب وتحديث القائمة
+// 1. سحب المنتجات من السحاب وعرضها في القائمة
 db.ref("products").on("value", (snapshot) => {
     cloudProducts = snapshot.val() || {};
     const select = document.getElementById("productSelect");
     if (!select) return;
     
-    select.innerHTML = '<option value="">-- اختر صنف --</option>';
+    select.innerHTML = '<option value="">-- اختر صنف من القائمة --</option>';
     Object.keys(cloudProducts).forEach(id => {
         let p = cloudProducts[id];
-        select.innerHTML += `<option value="${id}">${p.name} (متاح: ${p.stock})</option>`;
+        select.innerHTML += `<option value="${id}">${p.name} (متوفر: ${p.stock})</option>`;
     });
 });
 
-// 2. دالة إضافة صنف للفاتورة
+// 2. دالة الإضافة للجدول
 function addToInvoice() {
     const productId = document.getElementById("productSelect").value;
     const qty = parseInt(document.getElementById("qty").value);
 
-    if (!productId || qty <= 0) return alert("اختر صنف وكمية صحيحة");
+    if (!productId || qty <= 0) return alert("يرجى اختيار صنف وكمية!");
 
     const product = cloudProducts[productId];
-    if (qty > product.stock) return alert("الكمية غير متوفرة بالمخزن!");
+    if (qty > product.stock) return alert("عفواً! الكمية المطلوبة غير متوفرة حالياً في المخزن.");
 
     invoiceItems.push({
         id: productId,
@@ -133,40 +131,37 @@ function renderTable() {
                 <td>${item.price}</td>
                 <td>${item.qty}</td>
                 <td>${item.total}</td>
-                <td class="no-print"><button class="del-btn" onclick="removeItem(${index})">×</button></td>
             </tr>`;
     });
     totalDisp.innerText = grandTotal;
 }
 
-function removeItem(index) {
-    invoiceItems.splice(index, 1);
-    renderTable();
-}
-
 // 3. الخصم من السحاب والطباعة
 async function processAndPrint() {
     if (invoiceItems.length === 0) return alert("الفاتورة فارغة!");
-    if (!confirm("تأكيد البيع وخصم الكمية؟")) return;
+    if (!confirm("تأكيد البيع؟ سيتم خصم الكميات من المخزن السحابي الآن.")) return;
 
     try {
         for (let item of invoiceItems) {
-            let newStock = cloudProducts[item.id].stock - item.qty;
+            let currentStock = cloudProducts[item.id].stock;
+            let newStock = currentStock - item.qty;
+            
+            // تحديث الكمية في Firebase
             await db.ref("products/" + item.id).update({ stock: newStock });
         }
         
-        // حفظ الفاتورة في السجل
-        await db.ref("history").push({
-            date: new Date().toLocaleString('ar-EG'),
-            items: invoiceItems,
-            total: document.getElementById("finalTotal").innerText
-        });
-
-        alert("تم التحديث بنجاح!");
+        alert("تم تحديث المخزن بنجاح!");
         window.print();
+        
+        // مسح الفاتورة بعد البيع
         invoiceItems = [];
         renderTable();
-    } catch (e) { alert("خطأ في الاتصال!"); }
+        document.getElementById("qty").value = 1;
+
+    } catch (e) { 
+        console.error(e);
+        alert("خطأ في الاتصال بالسحاب!"); 
+    }
 }
 </script>
 </body>
