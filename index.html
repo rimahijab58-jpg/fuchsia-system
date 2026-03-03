@@ -3,70 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فاتورة فوشيا - الربط السحابي</title>
-    <link rel="stylesheet" href="style.css">
+    <title>فوشيا - فاتورة السحاب</title>
     <style>
-        /* تنسيق بسيط للتأكد من المظهر */
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .invoice { max-width: 800px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 10px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
+        .nav { margin-bottom: 20px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .nav a { text-decoration: none; color: #555; font-weight: bold; margin: 0 10px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-bottom: 5px; }
+        .input-box { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee; }
+        select, input { width: 90%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
+        .btn-add { background: #007bff; color: white; border: none; padding: 12px; width: 95%; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-        .no-print { margin-top: 20px; }
-        select, input { padding: 8px; margin: 5px; width: 200px; }
-        .btn-add { background: #007bff; color: white; border: none; cursor: pointer; padding: 10px 20px; }
-        .btn-save { background: #28a745; color: white; border: none; cursor: pointer; padding: 15px; width: 100%; font-size: 18px; margin-top: 20px; }
+        th { background: #eee; padding: 10px; border-bottom: 2px solid #ddd; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        .total-area { margin-top: 20px; font-size: 20px; font-weight: bold; color: #d9534f; }
+        .btn-print { background: #28a745; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 18px; margin-top: 15px; font-weight: bold; }
+        @media print { .no-print, .nav, .input-box, .del-btn { display: none; } .container { box-shadow: none; border: none; width: 100%; } }
+        .del-btn { color: red; cursor: pointer; border: none; background: none; font-size: 18px; }
     </style>
 </head>
 <body>
 
-<div class="no-print-nav" style="text-align: center; margin-bottom: 20px;">
-    <a href="index.html">🧾 الفاتورة</a> | 
-    <a href="products.html">📦 المخزن (المنتجات)</a>
+<div class="nav no-print">
+    <a href="index.html">🧾 Invoice</a> | 
+    <a href="products.html">📦 Products</a> | 
+    <a href="history.html">📑 History</a>
 </div>
 
-<div class="invoice">
-    <h2 style="text-align: center;">🧾 نظام فواتير فوشيا السحابي</h2>
+<div class="container">
+    <h1>فوشيا - FUCHSIA</h1>
+    <p style="color: #666;">إدارة المبيعات والمخزن السحابي</p>
 
-    <div class="no-print" style="background: #f0f4f8; padding: 15px; border-radius: 8px;">
-        <label>اختر المنتج:</label>
+    <div class="input-box no-print">
+        <label>اختر الصنف:</label><br>
         <select id="productSelect">
-            <option value="">جاري تحميل الأصناف...</option>
-        </select>
-        
-        <label>الكمية:</label>
-        <input type="number" id="qty" value="1" min="1">
-        
-        <button class="btn-add" onclick="addToInvoice()">إضافة الصنف للفاتورة ➕</button>
+            <option value="">جاري تحميل المنتجات...</option>
+        </select><br>
+        <label>الكمية:</label><br>
+        <input type="number" id="qty" value="1" min="1"><br>
+        <button class="btn-add" onclick="addToInvoice()">+ إضافة للفاتورة</button>
     </div>
 
-    <table id="invoiceTable">
+    <table>
         <thead>
-            <tr style="background: #eee;">
-                <th>المنتج</th>
+            <tr>
+                <th>الصنف</th>
                 <th>السعر</th>
-                <th>الكمية</th>
-                <th>الإجمالي</th>
-                <th class="no-print">إجراء</th>
+                <th>كمية</th>
+                <th>إجمالي</th>
+                <th class="no-print">حذف</th>
             </tr>
         </thead>
-        <tbody id="invoiceBody">
-            </tbody>
+        <tbody id="invoiceBody"></tbody>
     </table>
 
-    <div style="margin-top: 20px; text-align: right;">
-        <h3 style="color: #d9534f;">الإجمالي النهائي: <span id="finalTotal">0</span> ج.م</h3>
+    <div class="total-area">
+        الإجمالي: <span id="finalTotal">0</span> ج.م
     </div>
 
-    <button onclick="processAndPrint()" class="btn-save no-print">حفظ وخصم من المخزن السحابي وطباعة ✅</button>
+    <button class="btn-print no-print" onclick="processAndPrint()">🖨️ حفظ وخصم من المخزن وطباعة</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-// 1. بيانات الربط الخاصة بك (تأكد أنها نفس التي في صفحة المنتجات)
+// بيانات الربط الخاصة بك (Fuchsia-Web)
 const firebaseConfig = {
-  apiKey: "AIzaSyB" + "...", // يفضل نسخ المفتاح كاملاً من Firebase
+  apiKey: "AIzaSyB" + "673873d603b7fcbb29148d", // تأكد من المفتاح الكامل لو أمكن
   authDomain: "fuchsia-web-e1ffe.firebaseapp.com",
   databaseURL: "https://fuchsia-web-e1ffe-default-rtdb.firebaseio.com",
   projectId: "fuchsia-web-e1ffe",
@@ -75,16 +79,13 @@ const firebaseConfig = {
   appId: "1:1036149958008:web:673873d603b7fcbb29148d"
 };
 
-// تشغيل Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const db = firebase.database();
 
-let cloudProducts = {}; // لتخزين بيانات المخزن
-let invoiceItems = []; // لتخزين عناصر الفاتورة الحالية
+let cloudProducts = {}; 
+let invoiceItems = []; 
 
-// 2. جلب المنتجات من السحاب وتحديث القائمة
+// 1. جلب المنتجات من السحاب وتحديث القائمة
 db.ref("products").on("value", (snapshot) => {
     cloudProducts = snapshot.val() || {};
     const select = document.getElementById("productSelect");
@@ -93,31 +94,20 @@ db.ref("products").on("value", (snapshot) => {
     select.innerHTML = '<option value="">-- اختر صنف --</option>';
     Object.keys(cloudProducts).forEach(id => {
         let p = cloudProducts[id];
-        select.innerHTML += `<option value="${id}">${p.name} (المتاح: ${p.stock})</option>`;
+        select.innerHTML += `<option value="${id}">${p.name} (متاح: ${p.stock})</option>`;
     });
 });
 
-// 3. دالة إضافة صنف للفاتورة
+// 2. دالة إضافة صنف للفاتورة
 function addToInvoice() {
-    const select = document.getElementById("productSelect");
-    const qtyInput = document.getElementById("qty");
-    const productId = select.value;
-    const qty = parseInt(qtyInput.value);
+    const productId = document.getElementById("productSelect").value;
+    const qty = parseInt(document.getElementById("qty").value);
 
-    if (!productId || qty <= 0) {
-        alert("يرجى اختيار منتج وكمية صحيحة");
-        return;
-    }
+    if (!productId || qty <= 0) return alert("اختر صنف وكمية صحيحة");
 
     const product = cloudProducts[productId];
+    if (qty > product.stock) return alert("الكمية غير متوفرة بالمخزن!");
 
-    // التأكد من توفر كمية
-    if (qty > product.stock) {
-        alert("الكمية المطلوبة غير متوفرة في المخزن السحابي!");
-        return;
-    }
-
-    // إضافة المنتج للقائمة
     invoiceItems.push({
         id: productId,
         name: product.name,
@@ -127,10 +117,8 @@ function addToInvoice() {
     });
 
     renderTable();
-    qtyInput.value = 1; // إعادة تعيين الكمية لـ 1
 }
 
-// 4. رسم جدول الفاتورة
 function renderTable() {
     const tbody = document.getElementById("invoiceBody");
     const totalDisp = document.getElementById("finalTotal");
@@ -145,9 +133,8 @@ function renderTable() {
                 <td>${item.price}</td>
                 <td>${item.qty}</td>
                 <td>${item.total}</td>
-                <td class="no-print"><button onclick="removeItem(${index})" style="color:red; cursor:pointer;">X</button></td>
-            </tr>
-        `;
+                <td class="no-print"><button class="del-btn" onclick="removeItem(${index})">×</button></td>
+            </tr>`;
     });
     totalDisp.innerText = grandTotal;
 }
@@ -157,37 +144,29 @@ function removeItem(index) {
     renderTable();
 }
 
-// 5. حفظ العملية وخصم المخزن
+// 3. الخصم من السحاب والطباعة
 async function processAndPrint() {
-    if (invoiceItems.length === 0) {
-        alert("الفاتورة فارغة!");
-        return;
-    }
-
-    if (!confirm("هل تريد إتمام البيع وخصم الكميات من السحاب؟")) return;
+    if (invoiceItems.length === 0) return alert("الفاتورة فارغة!");
+    if (!confirm("تأكيد البيع وخصم الكمية؟")) return;
 
     try {
         for (let item of invoiceItems) {
-            let currentStock = cloudProducts[item.id].stock;
-            let newStock = currentStock - item.qty;
-
-            // تحديث السحاب فوراً
-            await db.ref("products/" + item.id).update({
-                stock: newStock
-            });
+            let newStock = cloudProducts[item.id].stock - item.qty;
+            await db.ref("products/" + item.id).update({ stock: newStock });
         }
-
-        alert("تم الخصم من المخزن السحابي بنجاح!");
-        window.print(); // فتح نافذة الطباعة
         
-        // تصفير الفاتورة
+        // حفظ الفاتورة في السجل
+        await db.ref("history").push({
+            date: new Date().toLocaleString('ar-EG'),
+            items: invoiceItems,
+            total: document.getElementById("finalTotal").innerText
+        });
+
+        alert("تم التحديث بنجاح!");
+        window.print();
         invoiceItems = [];
         renderTable();
-
-    } catch (error) {
-        alert("حدث خطأ في الاتصال بالسحاب!");
-        console.error(error);
-    }
+    } catch (e) { alert("خطأ في الاتصال!"); }
 }
 </script>
 </body>
