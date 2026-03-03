@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فوشيا - الفاتورة السحابية</title>
+    <title>فوشيا - فاتورة السحاب</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
         .nav { margin-bottom: 20px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .nav a { text-decoration: none; color: #007bff; font-weight: bold; margin: 0 10px; }
         .container { max-width: 550px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -23,17 +23,17 @@
 <body>
 
 <div class="nav no-print">
-    <a href="index.html">🧾 الفاتورة</a> | <a href="products.html">📦 المنتجات</a>
+    <a href="index.html">🧾 الفاتورة</a> | <a href="products.html">📦 المخزن</a>
 </div>
 
 <div class="container">
     <h1>فوشيا - FUCHSIA</h1>
-    <p style="color: #666;">نظام المبيعات السحابي</p>
+    <p style="color: #666;">إدارة المبيعات السحابية</p>
 
     <div class="input-box no-print">
-        <label>الصنف:</label>
+        <label>اختر المنتج:</label>
         <select id="productSelect">
-            <option value="">⏳ جاري تحميل البيانات...</option>
+            <option value="">⏳ جاري جلب المنتجات من السحاب...</option>
         </select>
         <label>الكمية:</label>
         <input type="number" id="qty" value="1" min="1">
@@ -61,7 +61,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-// الإعدادات اللي بعتها بالظبط
+// إعدادات Fuchsia-Web الخاصة بك من الصورة
 const firebaseConfig = {
   apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
   authDomain: "fuchsia-web-e1ffe.firebaseapp.com",
@@ -78,26 +78,28 @@ const db = firebase.database();
 let cloudProducts = {}; 
 let invoiceItems = []; 
 
-// جلب المنتجات من السحاب
+// جلب المنتجات من السحاب وتحديث القائمة فوراً
 db.ref("products").on("value", (snapshot) => {
     cloudProducts = snapshot.val() || {};
     const select = document.getElementById("productSelect");
-    select.innerHTML = '<option value="">-- اختر منتج --</option>';
-    Object.keys(cloudProducts).forEach(id => {
-        let p = cloudProducts[id];
-        select.innerHTML += `<option value="${id}">${p.name} (متاح: ${p.stock})</option>`;
-    });
+    if (select) {
+        select.innerHTML = '<option value="">-- اختر صنف --</option>';
+        Object.keys(cloudProducts).forEach(id => {
+            let p = cloudProducts[id];
+            select.innerHTML += `<option value="${id}">${p.name} (متاح: ${p.stock})</option>`;
+        });
+    }
 });
 
 function addToInvoice() {
     const productId = document.getElementById("productSelect").value;
     const qty = parseInt(document.getElementById("qty").value);
-    if (!productId || qty <= 0) return alert("اختر صنف وكمية!");
+    if (!productId || qty <= 0) return alert("اختر منتجاً!");
 
-    const product = cloudProducts[productId];
-    if (qty > product.stock) return alert("المخزن لا يكفي!");
+    const p = cloudProducts[productId];
+    if (qty > p.stock) return alert("عفواً! المخزن لا يكفي.");
 
-    invoiceItems.push({ id: productId, name: product.name, price: product.price, qty: qty, total: product.price * qty });
+    invoiceItems.push({ id: productId, name: p.name, price: p.price, qty: qty, total: p.price * qty });
     render();
 }
 
@@ -121,10 +123,10 @@ async function processAndPrint() {
             let newStock = cloudProducts[item.id].stock - item.qty;
             await db.ref("products/" + item.id).update({ stock: newStock });
         }
-        alert("تم البيع بنجاح!");
+        alert("تمت العملية بنجاح!");
         window.print();
         location.reload();
-    } catch (e) { alert("خطأ في الاتصال!"); }
+    } catch (e) { alert("خطأ في الاتصال بالسحاب!"); }
 }
 </script>
 </body>
