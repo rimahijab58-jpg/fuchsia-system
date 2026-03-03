@@ -2,73 +2,65 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>فوشيا - FUCHSIA</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; text-align: center; }
-        .nav { margin-bottom: 20px; }
-        .nav a { text-decoration: none; color: #d9534f; margin: 0 10px; font-weight: bold; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border: 1px solid #ccc; }
-        h1 { color: #333; margin-bottom: 10px; }
-        .input-box { border: 2px solid #eee; padding: 15px; margin-bottom: 20px; text-align: right; }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; font-size: 16px; }
-        .btn-add { background: #5bc0de; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; font-size: 16px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-        th { background-color: #f8f8f8; }
-        .total { font-size: 24px; color: red; font-weight: bold; margin: 20px 0; }
-        .btn-print { background: #5cb85c; color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-size: 18px; font-weight: bold; }
-        /* تصميم قائمة البحث */
-        .search-container { position: relative; }
-        #searchResult { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 100; max-height: 150px; overflow-y: auto; display: none; text-align: right; }
+        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; text-align: center; }
+        .no-print { margin-bottom: 20px; }
+        .no-print a { text-decoration: none; color: #d9534f; margin: 0 10px; font-weight: bold; }
+        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border: 1px solid #ccc; text-align: right; }
+        /* ستايل الطباعة المماثل للصورة */
+        .receipt-header { text-align: center; margin-bottom: 10px; }
+        .receipt-header h2 { margin: 5px 0; font-size: 24px; }
+        .info-row { display: flex; justify-content: space-between; font-size: 14px; margin: 5px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; border-top: 2px solid #000; border-bottom: 2px solid #000; }
+        th, td { padding: 8px; text-align: center; border-bottom: 1px solid #eee; }
+        .grand-total { font-size: 26px; font-weight: bold; text-align: center; margin: 15px 0; }
+        .search-container { position: relative; margin-bottom: 15px; }
+        #searchResult { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 100; display: none; }
         .search-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; }
-        .search-item:hover { background: #f0f0f0; }
-        @media print { .no-print { display: none; } .container { border: none; width: 100%; } }
+        .qr-placeholder { text-align: center; margin: 10px 0; }
+        @media print { .no-print { display: none; } body { background: white; padding: 0; } .container { border: none; width: 100%; } }
     </style>
 </head>
 <body>
 
-<div class="nav no-print">
-    <a href="index.html">🧾 الفاتورة</a> | <a href="products.html">📦 المخزن</a> | <a href="history.html">📑 السجل والشارت</a>
+<div class="no-print">
+    <a href="index.html">🧾 الفاتورة</a> | <a href="products.html">📦 المخزن</a> | <a href="history.html">📊 التقارير</a>
+    <div style="margin-top: 20px; background: white; padding: 15px; border: 1px solid #ccc;">
+        <input type="text" id="productSearch" placeholder="🔍 ابحث عن منتج بالاسم..." oninput="filterProducts()" style="width:80%; padding:10px;">
+        <div id="searchResult"></div>
+        <input type="number" id="qty" value="1" min="1" style="width:15%; padding:10px;">
+        <button onclick="addToInvoice()" style="padding:10px; background:#5bc0de; color:white; border:none; margin-top:10px; width:100%;">إضافة +</button>
+    </div>
 </div>
 
-<div class="container">
-    <h1>FUCHSIA - فوشيا</h1>
-    <p>نظام إدارة المبيعات</p>
-
-    <div class="input-box no-print">
-        <label>ابحث عن المنتج:</label>
-        <div class="search-container">
-            <input type="text" id="productSearch" placeholder="اكتب اسم المنتج هنا..." oninput="filterProducts()">
-            <div id="searchResult"></div>
+<div class="container" id="receipt">
+    <div class="receipt-header">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="text-align: right; font-size: 12px;">
+                طرحة - خمار - زي شرعي<br>سمسطا - ش بورسعيد<br>01287863711
+            </div>
+            <div style="text-align: left;">
+                <h2 style="color: #000;">فوشيا</h2>
+                <div style="font-size: 12px;">رقم: <span id="invNum">---</span><br>التاريخ: <span id="invDate">---</span></div>
+            </div>
         </div>
-        
-        <input type="hidden" id="selectedProductId">
-        <label>الكمية:</label>
-        <input type="number" id="qty" value="1" min="1">
-        <button class="btn-add" onclick="addToInvoice()">إضافة للفاتورة +</button>
     </div>
-
-    <table id="invoiceTable">
-        <thead>
-            <tr>
-                <th>الصنف</th>
-                <th>سعر</th>
-                <th>كمية</th>
-                <th>إجمالي</th>
-            </tr>
-        </thead>
+    <div class="qr-placeholder"><img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=FuchsiaPOS" id="qrImg"></div>
+    <hr>
+    <div class="info-row"><b>العميل: عميل نقدي</b></div>
+    <table>
+        <thead><tr><th>الصنف</th><th>سعر</th><th>كمية</th><th>إجمالي</th></tr></thead>
         <tbody id="invoiceBody"></tbody>
     </table>
-
-    <div class="total">الإجمالي: <span id="finalTotal">0</span> ج.م</div>
-
-    <button class="btn-print no-print" onclick="processAndPrint()">حفظ وطباعة الفاتورة ✅</button>
+    <div class="grand-total">الإجمالي: <span id="finalTotal">0</span></div>
+    <div style="text-align: center; font-size: 12px;">شكراً لزيارتكم</div>
 </div>
+
+<button class="no-print" onclick="processAndPrint()" style="width:400px; padding:15px; background:#5cb85c; color:white; font-weight:bold; margin-top:10px;">حفظ وطباعة ✅</button>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
@@ -79,99 +71,51 @@ const firebaseConfig = {
   messagingSenderId: "1036149958008",
   appId: "1:1036149958008:web:673873d603b7fcbb29148d"
 };
-
-if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+let cloudProducts = {}, invoiceItems = [], selectedId = null;
 
-let cloudProducts = {}; 
-let invoiceItems = []; 
+db.ref("products").on("value", s => cloudProducts = s.val() || {});
 
-// جلب المنتجات من السحاب
-db.ref("products").on("value", (snapshot) => {
-    cloudProducts = snapshot.val() || {};
-});
-
-// دالة البحث الذكي
 function filterProducts() {
-    const input = document.getElementById("productSearch").value.toLowerCase();
-    const resultDiv = document.getElementById("searchResult");
-    resultDiv.innerHTML = "";
-    
-    if (input === "") {
-        resultDiv.style.display = "none";
-        return;
-    }
-
-    let found = false;
+    const val = document.getElementById("productSearch").value.toLowerCase();
+    const res = document.getElementById("searchResult");
+    res.innerHTML = "";
+    if(!val) { res.style.display="none"; return; }
     Object.keys(cloudProducts).forEach(id => {
-        const p = cloudProducts[id];
-        if (p.name.toLowerCase().includes(input)) {
-            const item = document.createElement("div");
-            item.className = "search-item";
-            item.innerHTML = `${p.name} (متاح: ${p.stock})`;
-            item.onclick = () => selectProduct(id, p.name);
-            resultDiv.appendChild(item);
-            found = true;
+        if(cloudProducts[id].name.toLowerCase().includes(val)) {
+            let d = document.createElement("div"); d.className="search-item";
+            d.innerHTML = cloudProducts[id].name;
+            d.onclick = () => { selectedId=id; document.getElementById("productSearch").value=cloudProducts[id].name; res.style.display="none"; };
+            res.appendChild(d);
         }
     });
-
-    resultDiv.style.display = found ? "block" : "none";
-}
-
-function selectProduct(id, name) {
-    document.getElementById("selectedProductId").value = id;
-    document.getElementById("productSearch").value = name;
-    document.getElementById("searchResult").style.display = "none";
+    res.style.display="block";
 }
 
 function addToInvoice() {
-    const id = document.getElementById("selectedProductId").value;
-    const qty = parseInt(document.getElementById("qty").value);
-
-    if (!id || qty <= 0) return alert("اختار منتج الأول!");
-    const p = cloudProducts[id];
-
-    if (qty > p.stock) return alert("المخزن مش كفاية!");
-
-    invoiceItems.push({ id, name: p.name, price: p.price, qty, total: p.price * qty });
-    
-    // تصفير البحث بعد الإضافة
-    document.getElementById("productSearch").value = "";
-    document.getElementById("selectedProductId").value = "";
+    if(!selectedId) return alert("اختر منتجاً");
+    let q = parseInt(document.getElementById("qty").value);
+    let p = cloudProducts[selectedId];
+    invoiceItems.push({id: selectedId, name: p.name, price: p.price, qty: q, total: p.price*q});
     render();
 }
 
 function render() {
     const tbody = document.getElementById("invoiceBody");
-    let total = 0;
-    tbody.innerHTML = "";
-    invoiceItems.forEach(item => {
-        total += item.total;
-        tbody.innerHTML += `<tr><td>${item.name}</td><td>${item.price}</td><td>${item.qty}</td><td>${item.total}</td></tr>`;
-    });
+    let total = 0; tbody.innerHTML = "";
+    invoiceItems.forEach(i => { total+=i.total; tbody.innerHTML+=`<tr><td>${i.name}</td><td>${i.price}</td><td>${i.qty}</td><td>${i.total}</td></tr>`; });
     document.getElementById("finalTotal").innerText = total;
+    document.getElementById("invNum").innerText = Math.floor(Math.random()*9000)+1000;
+    document.getElementById("invDate").innerText = new Date().toLocaleDateString('ar-EG');
 }
 
 async function processAndPrint() {
-    if (invoiceItems.length === 0) return;
-    if (!confirm("تأكيد البيع؟")) return;
-
+    if(invoiceItems.length===0) return;
     const now = new Date();
-    const saleData = {
-        timestamp: now.getTime(),
-        date: now.toLocaleDateString('en-CA'),
-        items: invoiceItems,
-        total: document.getElementById("finalTotal").innerText
-    };
-
-    for (let item of invoiceItems) {
-        await db.ref("products/" + item.id).update({ stock: cloudProducts[item.id].stock - item.qty });
-    }
-    
-    // حفظ في التاريخ (History)
-    await db.ref("history").push(saleData);
-
-    alert("تم الحفظ بنجاح!");
+    const data = { timestamp: now.getTime(), date: now.toLocaleDateString('en-CA'), total: parseFloat(document.getElementById("finalTotal").innerText), items: invoiceItems };
+    for(let i of invoiceItems) { await db.ref("products/"+i.id).update({stock: cloudProducts[i.id].stock - i.qty}); }
+    await db.ref("history").push(data);
     window.print();
     location.reload();
 }

@@ -2,82 +2,59 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>سجل الفواتير</title>
-    <link rel="stylesheet" href="style.css">
+    <title>فوشيا - تقارير المبيعات</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* تحسينات بسيطة لمظهر الجدول */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
-        th { background-color: #f8f9fa; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; text-align: center; }
+        .chart-container { background: white; margin: 20px auto; padding: 20px; max-width: 800px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .nav a { text-decoration: none; color: #d9534f; margin: 0 10px; font-weight: bold; }
     </style>
 </head>
 <body>
+    <div class="nav">
+        <a href="index.html">🧾 العودة للفاتورة</a>
+    </div>
+    <h1>📊 تحليلات مبيعات فوشيا</h1>
+    
+    <div class="chart-container">
+        <h3>المبيعات اليومية (آخر 7 أيام)</h3>
+        <canvas id="dailyChart"></canvas>
+    </div>
 
-<div style="margin-bottom:15px; text-align: center;">
-    <a href="index.html">🧾 Invoice</a> |
-    <a href="products.html">📦 Products</a> |
-    <a href="history.html">📑 History</a>
-</div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
+          authDomain: "fuchsia-web-e1ffe.firebaseapp.com",
+          databaseURL: "https://fuchsia-web-e1ffe-default-rtdb.firebaseio.com",
+          projectId: "fuchsia-web-e1ffe",
+          storageBucket: "fuchsia-web-e1ffe.firebasestorage.app",
+          messagingSenderId: "1036149958008",
+          appId: "1:1036149958008:web:673873d603b7fcbb29148d"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-<div class="invoice" style="max-width: 900px; margin: auto;">
-    <h2>📑 سجل الفواتير المحفوظة</h2>
+        db.ref("history").on("value", snapshot => {
+            const data = snapshot.val() || {};
+            const dailyTotals = {};
+            
+            Object.values(data).forEach(sale => {
+                dailyTotals[sale.date] = (dailyTotals[sale.date] || 0) + parseFloat(sale.total);
+            });
 
-    <table id="historyTable">
-        <thead>
-            <tr>
-                <th>رقم الفاتورة</th>
-                <th>التاريخ</th>
-                <th>اسم العميل</th>
-                <th>الإجمالي</th>
-                <th>تفاصيل</th>
-            </tr>
-        </thead>
-        <tbody id="historyList"></tbody>
-    </table>
-    <button onclick="clearHistory()" style="background: #dc3545; color: white; margin-top: 20px; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px;">مسح السجل بالكامل</button>
-</div>
+            const labels = Object.keys(dailyTotals).sort().slice(-7);
+            const values = labels.map(l => dailyTotals[l]);
 
-<script>
-    function loadHistory() {
-        let history = JSON.parse(localStorage.getItem("invoiceHistory")) || [];
-        let list = document.getElementById("historyList");
-        list.innerHTML = "";
-
-        history.forEach((inv, index) => {
-            // ملاحظة: تم تغيير inv.grandTotal إلى inv.total ليتوافق مع كود الحفظ
-            let row = `
-            <tr>
-                <td>${inv.id || (index + 1)}</td>
-                <td>${inv.date}</td>
-                <td>${inv.customer}</td>
-                <td style="font-weight: bold; color: #28a745;">${inv.total}</td> 
-                <td><button onclick="viewDetails(${index})" style="width: auto; padding: 5px 15px; cursor: pointer;">عرض الأصناف</button></td>
-            </tr>`;
-            list.insertAdjacentHTML("beforeend", row);
+            new Chart(document.getElementById('dailyChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ label: 'إجمالي المبيعات (ج.م)', data: values, backgroundColor: '#f72585' }]
+                }
+            });
         });
-    }
-
-    function viewDetails(index) {
-        let history = JSON.parse(localStorage.getItem("invoiceHistory"));
-        let inv = history[index];
-        
-        if (inv.items && inv.items.length > 0) {
-            let details = inv.items.map(i => `- ${i.name} (السعر: ${i.price} | الكمية: ${i.qty} | الإجمالي: ${i.lineTotal})`).join("\n");
-            alert("تفاصيل المنتجات في فاتورة " + inv.customer + ":\n" + details);
-        } else {
-            alert("لا توجد تفاصيل أصناف لهذه الفاتورة.");
-        }
-    }
-
-    function clearHistory() {
-        if(confirm("هل أنت متأكد من مسح جميع الفواتير من السجل؟")) {
-            localStorage.removeItem("invoiceHistory");
-            loadHistory();
-        }
-    }
-
-    window.onload = loadHistory;
-</script>
+    </script>
 </body>
 </html>
