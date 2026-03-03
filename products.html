@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المنتجات - فوشيا</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="no-print-nav" style="margin-bottom:15px; text-align: center;">
+    <a href="index.html">🧾 Invoice</a> |
+    <a href="products.html">📦 Products</a> |
+    <a href="history.html">📑 History</a>
+</div>
+
+<div class="invoice" style="max-width: 500px; margin: auto;">
+    <h2>📦 إدارة المنتجات</h2>
+
+    <input id="pname" placeholder="اسم المنتج">
+    <input id="pprice" type="number" placeholder="السعر">
+    <input id="pstock" type="number" placeholder="الكمية في المخزن">
+
+    <button id="addBtn" onclick="addProduct()" style="background: #28a745; color: white; padding: 10px; cursor: pointer; width: 100%; border: none; border-radius: 5px; margin-top:10px;">إضافة منتج</button>
+
+    <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #eee;">
+                <th>الاسم</th>
+                <th>السعر</th>
+                <th>المخزن</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody id="plist"></tbody>
+    </table>
+</div>
+
+<script src="products.js"></script>
+</body>
+</html>
