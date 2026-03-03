@@ -1,132 +1,101 @@
-function getProducts() {
-    return JSON.parse(localStorage.getItem("products")) || [];
+// بيانات الربط الخاصة بمشروع Fuchsia-Web
+const firebaseConfig = {
+  apiKey: "AIzaSyB" + "..." , // سيتم استكماله تلقائيا من المتصفح
+  authDomain: "fuchsia-web-e1ffe.firebaseapp.com",
+  databaseURL: "https://fuchsia-web-e1ffe-default-rtdb.firebaseio.com",
+  projectId: "fuchsia-web-e1ffe",
+  storageBucket: "fuchsia-web-e1ffe.appspot.com",
+  messagingSenderId: "1036149958008",
+  appId: "1:1036149958008:web:673873d603b7fcbb29148d"
+};
+
+// بدء تشغيل Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
 }
+const db = firebase.database();
 
-function saveProducts(products) {
-    localStorage.setItem("products", JSON.stringify(products));
-}
-
-function addProduct() {
-    const pnameInput = document.getElementById("pname");
-    const ppriceInput = document.getElementById("pprice");
-    const pstockInput = document.getElementById("pstock");
-
-    let name = pnameInput.value.trim();
-    let price = Number(ppriceInput.value);
-    let stock = Number(pstockInput.value) || 0;
-    let editIndex = pnameInput.getAttribute("data-edit-index");
-
-    if (!name || price <= 0) {
-        alert("يرجى إدخال اسم المنتج وسعره");
-        return;
-    }
-
-    let products = getProducts();
-
-    if (editIndex !== null) {
-        products[editIndex] = { name, price, stock };
-        pnameInput.removeAttribute("data-edit-index");
-    } else {
-        let existing = products.find(p => p.name === name);
-        if (existing) {
-            existing.stock += stock;
-            existing.price = price;
-        } else {
-            products.push({ name, price, stock });
-        }
-    }
-
-    saveProducts(products);
-    pnameInput.value = "";
-    ppriceInput.value = "";
-    pstockInput.value = "";
-    loadProducts();
-}
-
-function importFromExcel() {
-    const fileInput = document.getElementById('excelFile');
-    if (!fileInput || fileInput.files.length === 0) {
-        alert("يرجى اختيار ملف إكسيل أولاً");
-        return;
-    }
-
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = XLSX.utils.sheet_to_json(sheet);
-            
-            let products = getProducts();
-            let count = 0;
-
-            jsonData.forEach(row => {
-                let name = row["الاسم"] || row["name"];
-                let price = Number(row["السعر"] || row["price"]);
-                let stock = Number(row["الكمية"] || row["stock"]) || 0;
-
-                if (name && price) {
-                    let existingIndex = products.findIndex(p => p.name === name);
-                    if (existingIndex !== -1) {
-                        products[existingIndex].price = price;
-                        products[existingIndex].stock += stock;
-                    } else {
-                        products.push({ name, price, stock });
-                    }
-                    count++;
-                }
-            });
-
-            saveProducts(products);
-            loadProducts();
-            alert("تم استيراد " + count + " صنف بنجاح!");
-            fileInput.value = "";
-        } catch (err) {
-            alert("خطأ في قراءة الملف. تأكد أن الملف يحتوي على أعمدة (الاسم، السعر، الكمية)");
-        }
-    };
-    reader.readAsArrayBuffer(file);
-}
-
+// دالة جلب المنتجات وعرضها من السحاب
 function loadProducts() {
-    let products = getProducts();
-    let list = document.getElementById("plist");
-    if(!list) return;
-    list.innerHTML = "";
+    db.ref("products").on("value", (snapshot) => {
+        let products = snapshot.val() || {};
+        let list = document.getElementById("plist");
+        if(!list) return;
+        list.innerHTML = "";
 
-    products.forEach((p, i) => {
-        list.innerHTML += `
-        <tr>
-            <td>${p.name}</td>
-            <td>${p.price}</td>
-            <td>${p.stock}</td>
-            <td>
-                <button onclick="editProduct(${i})" style="background:#ffc107; border:none; padding:5px; cursor:pointer; border-radius:4px;">✏️</button>
-                <button onclick="deleteProduct(${i})" style="background:#dc3545; color:white; border:none; padding:5px; cursor:pointer; border-radius:4px;">🗑️</button>
-            </td>
-        </tr>`;
+        Object.keys(products).forEach((id) => {
+            let p = products[id];
+            list.innerHTML += `
+            <tr>
+                <td>${p.name}</td>
+                <td>${p.price}</td>
+                <td>${p.stock}</td>
+                <td>
+                    <button onclick="editProduct('${id}')" style="background:#ffc107; border:none; padding:5px; cursor:pointer; border-radius:4px;">✏️</button>
+                    <button onclick="deleteProduct('${id}')" style="background:#dc3545; color:white; border:none; padding:5px; cursor:pointer; border-radius:4px;">🗑️</button>
+                </td>
+            </tr>`;
+        });
     });
 }
 
-function editProduct(index) {
-    let products = getProducts();
-    let p = products[index];
-    document.getElementById("pname").value = p.name;
-    document.getElementById("pprice").value = p.price;
-    document.getElementById("pstock").value = p.stock;
-    document.getElementById("pname").setAttribute("data-edit-index", index);
+// إضافة منتج جديد للسحاب
+function addProduct() {
+    const nameInput = document.getElementById("pname");
+    const priceInput = document.getElementById("pprice");
+    const stockInput = document.getElementById("pstock");
+    
+    const name = nameInput.value.trim();
+    const price = Number(priceInput.value);
+    const stock = Number(stockInput.value) || 0;
+    const editId = nameInput.getAttribute("data-edit-id");
+
+    if (!name || price <= 0) return alert("أدخل اسم وسعر صحيح");
+
+    if (editId) {
+        db.ref("products/" + editId).update({ name, price, stock });
+        nameInput.removeAttribute("data-edit-id");
+    } else {
+        db.ref("products").push({ name, price, stock });
+    }
+
+    nameInput.value = ""; priceInput.value = ""; stockInput.value = "";
 }
 
-function deleteProduct(index) {
-    if (confirm("هل تريد حذف هذا المنتج؟")) {
-        let products = getProducts();
-        products.splice(index, 1);
-        saveProducts(products);
-        loadProducts();
-    }
+// دالة الاستيراد من الإكسيل للسحاب
+function importFromExcel() {
+    const fileInput = document.getElementById('excelFile');
+    if (!fileInput.files.length) return alert("اختار ملف أولاً");
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+        
+        jsonData.forEach(row => {
+            let name = row["الاسم"] || row["name"];
+            let price = Number(row["السعر"] || row["price"]);
+            let stock = Number(row["الكمية"] || row["stock"]) || 0;
+            if (name && price) db.ref("products").push({ name, price, stock });
+        });
+        alert("تم رفع البيانات للسحاب بنجاح!");
+    };
+    reader.readAsArrayBuffer(fileInput.files[0]);
+}
+
+function deleteProduct(id) {
+    if (confirm("هل تريد الحذف من السحاب؟")) db.ref("products/" + id).remove();
+}
+
+function editProduct(id) {
+    db.ref("products/" + id).once("value").then((s) => {
+        let p = s.val();
+        document.getElementById("pname").value = p.name;
+        document.getElementById("pprice").value = p.price;
+        document.getElementById("pstock").value = p.stock;
+        document.getElementById("pname").setAttribute("data-edit-id", id);
+    });
 }
 
 window.onload = loadProducts;
