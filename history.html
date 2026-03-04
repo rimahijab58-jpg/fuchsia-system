@@ -172,8 +172,23 @@
         let allProducts = {};
         let isArchiveView = false;
 
+        // دالة الطباعة الذكية
         function smartPrint() {
             window.scrollTo(0,0);
+            
+            // مراقبة حدث ما بعد الطباعة
+            const afterPrintHandler = function() {
+                window.removeEventListener('afterprint', afterPrintHandler);
+                // سؤال المستخدم إذا كان يريد التصفير بعد انتهاء المعاينة
+                setTimeout(() => {
+                    if (confirm("هل تريد تصفير السجل الحالي ونقله للأرشيف الآن؟")) {
+                        archiveCurrentHistory(true); // true تعني تجاوز التأكيد مرة أخرى
+                    }
+                }, 500);
+            };
+
+            window.addEventListener('afterprint', afterPrintHandler);
+            
             setTimeout(() => { 
                 window.print(); 
             }, 500);
@@ -185,10 +200,17 @@
         });
 
         // تصفير السجل الحالي ونقله للأرشيف
-        async function archiveCurrentHistory() {
-            if (!confirm("هل أنت متأكد من تصفير السجل الحالي ونقله للأرشيف؟")) return;
+        async function archiveCurrentHistory(skipConfirm = false) {
+            if (!skipConfirm) {
+                if (!confirm("هل أنت متأكد من تصفير السجل الحالي ونقله للأرشيف؟")) return;
+            }
+            
             const snapshot = await db.ref("history").once("value");
-            if (!snapshot.exists()) return alert("السجل فارغ بالفعل!");
+            if (!snapshot.exists()) {
+                if (!skipConfirm) alert("السجل فارغ بالفعل!");
+                return;
+            }
+            
             const historyData = snapshot.val();
             const archiveRef = db.ref("archived_history").push();
             await archiveRef.set({ archivedAt: new Date().toLocaleString(), data: historyData });
