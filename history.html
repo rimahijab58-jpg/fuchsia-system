@@ -11,7 +11,7 @@
     <style>
         body { font-family: 'Cairo', sans-serif; background: #f0f2f5; padding: 10px; text-align: center; margin: 0; overflow-x: hidden; }
         .nav { margin-bottom: 25px; padding-top: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-        .nav a, .nav button { text-decoration: none; color: #fff; background: #4b0082; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 13px; border: none; cursor: pointer; font-family: 'Cairo'; }
+        .nav a, .nav button { text-decoration: none; color: #fff; background: #4b0082; padding: 10px 18px; border-radius: 25px; font-weight: bold; font-size: 13px; border: none; cursor: pointer; font-family: 'Cairo'; }
         
         #postPrintAction { 
             display: none; 
@@ -23,53 +23,42 @@
             width: 90%;
             max-width: 400px;
             box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
         }
 
-        .summary-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; padding: 0 5px; }
-        .card { background: white; padding: 12px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-bottom: 4px solid #4b0082; }
-        .card h2 { margin: 0; color: #666; font-size: 12px; }
-        .card p { margin: 8px 0 0; font-size: 15px; font-weight: bold; color: #4b0082; }
+        .summary-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; padding: 0 5px; }
+        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-bottom: 5px solid #4b0082; }
+        .card h2 { margin: 0; color: #666; font-size: 13px; font-weight: bold; }
+        .card p { margin: 10px 0 0; font-size: 16px; font-weight: 900; color: #4b0082; }
         .card.profit { border-bottom-color: #28a745; }
         .card.profit p { color: #28a745; }
 
-        .container { width: 100%; max-width: 1000px; margin: auto; background: white; padding: 10px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+        .container { width: 100%; max-width: 1000px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
         
         .charts-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }
-        .chart-box { background: white; padding: 10px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); min-height: 250px; width: 100%; box-sizing: border-box; }
+        .chart-box { background: white; padding: 10px; border-radius: 12px; border: 1px solid #eee; min-height: 250px; width: 100%; box-sizing: border-box; }
 
-        .table-responsive { width: 100%; overflow-x: auto; margin-top: 15px; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th, td { padding: 10px 5px; border-bottom: 1px solid #eee; text-align: center; font-size: 12px; }
-        th { background: #4b0082; color: white; white-space: nowrap; }
+        .table-responsive { width: 100%; overflow-x: auto; margin-top: 15px; border-radius: 8px; border: 1px solid #eee; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th, td { padding: 12px 8px; border-bottom: 1px solid #eee; text-align: center; font-size: 13px; }
+        th { background: #4b0082; color: white; white-space: nowrap; font-weight: bold; }
         .type-sale { color: #28a745; font-weight: bold; }
         .type-return { color: #d9534f; font-weight: bold; }
 
-        .archive-status { background: #ffc107; color: #000; padding: 5px 15px; border-radius: 15px; display: inline-block; margin-bottom: 10px; font-size: 11px; font-weight: bold; display: none; }
+        .archive-status { background: #ffc107; color: #000; padding: 6px 15px; border-radius: 20px; display: inline-block; margin-bottom: 15px; font-size: 12px; font-weight: bold; display: none; }
 
         @media print {
-            @page { size: auto; margin: 5mm; }
-            html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
-            .nav, .summary-cards, .charts-container, .no-print, .archive-status, #archiveBtn, #toggleViewBtn, #postPrintAction { 
-                display: none !important; 
-            }
-            .container { box-shadow: none !important; width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
-            .table-responsive { overflow: visible !important; }
-            table { width: 100% !important; border: 1px solid #000 !important; table-layout: auto !important; }
-            th, td { border: 1px solid #ccc !important; color: #000 !important; background: #fff !important; font-size: 10px !important; }
+            .nav, .summary-cards, .charts-container, .no-print, #postPrintAction { display: none !important; }
+            .container { box-shadow: none !important; border: none !important; width: 100% !important; margin: 0 !important; }
+            table { border: 1px solid #000 !important; }
+            th, td { border: 1px solid #000 !important; font-size: 12px !important; color: #000 !important; }
         }
 
         @media (min-width: 768px) {
             .charts-container { flex-direction: row; }
             .chart-box { flex: 1; }
             .summary-cards { grid-template-columns: repeat(4, 1fr); gap: 15px; }
-            .card p { font-size: 18px; }
-            th, td { font-size: 13px; padding: 12px; }
+            .card p { font-size: 20px; }
+            th, td { font-size: 14px; }
         }
     </style>
 </head>
@@ -78,38 +67,38 @@
     <div class="nav no-print">
         <a href="index.html">🏠 الفاتورة</a>
         <a href="products.html">📦 المخزن</a>
-        <button onclick="smartPrintTrigger()" style="background:#28a745;">🖨️ طباعة السجل</button>
-        <button id="archiveBtn" onclick="archiveCurrentHistory()" style="background:#dc3545;">🧹 تصفير يدوي</button>
+        <button onclick="smartPrintTrigger()" style="background:#28a745;">🖨️ طباعة</button>
         <button id="toggleViewBtn" onclick="toggleArchiveView()" style="background:#6c757d;">📂 الأرشيف</button>
+        <button id="archiveBtn" onclick="archiveCurrentHistory()" style="background:#dc3545;">🧹 تصفير</button>
     </div>
 
     <div id="postPrintAction">
-        <p style="margin:0 0 10px 0; font-weight:bold; font-size:14px;">هل انتهيت من الطباعة بنجاح؟</p>
-        <button onclick="archiveCurrentHistory(true)" style="background:white; color:#ff8c00; border:none; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer; font-size:12px;">نعم، تصفير السجل الآن ✅</button>
-        <button onclick="hidePrintAction()" style="background:transparent; color:white; border:1px solid white; margin-right:5px; padding:8px 15px; border-radius:5px; cursor:pointer; font-size:12px;">إلغاء</button>
+        <p style="margin:0 0 10px 0; font-weight:bold;">هل تمت الطباعة بنجاح؟</p>
+        <button onclick="archiveCurrentHistory(true)" style="background:white; color:#ff8c00; border:none; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">نعم، تصفير السجل ✅</button>
+        <button onclick="hidePrintAction()" style="background:transparent; color:white; border:1px solid white; margin-right:5px; padding:8px 15px; border-radius:5px; cursor:pointer;">لا</button>
     </div>
 
     <div class="summary-cards">
         <div class="card">
             <h2>مبيعات اليوم</h2>
-            <p id="daySales">0</p>
+            <p id="daySales">0 ج.م</p>
         </div>
         <div class="card profit">
             <h2>ربح اليوم</h2>
-            <p id="dayProfit">0</p>
+            <p id="dayProfit">0 ج.م</p>
         </div>
         <div class="card">
             <h2>مبيعات الشهر</h2>
-            <p id="monthSales">0</p>
+            <p id="monthSales">0 ج.م</p>
         </div>
         <div class="card profit">
             <h2>ربح الشهر</h2>
-            <p id="monthProfit">0</p>
+            <p id="monthProfit">0 ج.م</p>
         </div>
     </div>
 
     <div class="container" id="printableArea">
-        <div id="archiveLabel" class="archive-status">⚠️ عرض الأرشيف</div>
+        <div id="archiveLabel" class="archive-status">⚠️ وضع الأرشيف</div>
         
         <div class="no-print">
             <div class="charts-container">
@@ -122,21 +111,23 @@
             </div>
         </div>
 
-        <h3 id="tableTitle" style="font-size: 16px; margin-top: 5px;">📝 سجل العمليات الحالي</h3>
+        <h3 id="tableTitle" style="font-size: 18px; color: #4b0082;">📝 سجل العمليات الحالي</h3>
         <div class="table-responsive">
             <table id="mainTable">
                 <thead>
                     <tr>
-                        <th>الرقم</th>
-                        <th>الوقت</th>
+                        <th>رقم الفاتورة</th>
+                        <th>التاريخ والوقت</th>
                         <th>النوع</th>
-                        <th>المبيعات</th>
+                        <th>الإجمالي</th>
                         <th>التكلفة</th>
                         <th>الربح</th>
-                        <th>التفاصيل</th>
+                        <th>الأصناف</th>
                     </tr>
                 </thead>
-                <tbody id="historyTable"></tbody>
+                <tbody id="historyTable">
+                    <tr><td colspan="7">جاري تحميل البيانات...</td></tr>
+                </tbody>
             </table>
         </div>
     </div>
@@ -159,74 +150,20 @@
         let isArchiveView = false;
         let currentHistoryData = [];
 
-        async function smartPrintTrigger() {
-            if (currentHistoryData.length === 0) {
-                alert("السجل فارغ، لا يوجد شيء لطباعته!");
-                return;
-            }
-
-            window.scrollTo(0,0);
-            document.getElementById('postPrintAction').style.display = 'block';
-            
-            // تأخير بسيط لضمان رندر العناصر على الموبايل قبل الطباعة
-            setTimeout(() => { 
-                window.print(); 
-            }, 1000);
-        }
-
-        function hidePrintAction() {
-            document.getElementById('postPrintAction').style.display = 'none';
-        }
-
+        // تشغيل الجلب فور التحميل
         db.ref("products").on("value", snapshot => {
             allProducts = snapshot.val() || {};
             loadHistory();
         });
 
-        async function archiveCurrentHistory(skipConfirm = false) {
-            if (!skipConfirm) {
-                if (!confirm("هل أنت متأكد من تصفير السجل الحالي؟")) return;
-            }
-            
-            const snapshot = await db.ref("history").once("value");
-            if (!snapshot.exists()) {
-                if (!skipConfirm) alert("السجل فارغ بالفعل!");
-                hidePrintAction();
-                return;
-            }
-            
-            const historyData = snapshot.val();
-            const archiveRef = db.ref("archived_history").push();
-            await archiveRef.set({ 
-                archivedAt: new Date().toLocaleString(), 
-                data: historyData 
-            });
-            
-            await db.ref("history").remove();
-            hidePrintAction();
-            if(!skipConfirm) alert("تم التصفير بنجاح.");
+        async function smartPrintTrigger() {
+            if (currentHistoryData.length === 0) return alert("السجل فارغ!");
+            document.getElementById('postPrintAction').style.display = 'block';
+            window.print();
         }
 
-        function toggleArchiveView() {
-            isArchiveView = !isArchiveView;
-            const btn = document.getElementById("toggleViewBtn");
-            const label = document.getElementById("archiveLabel");
-            const title = document.getElementById("tableTitle");
-            const archiveBtn = document.getElementById("archiveBtn");
-
-            if (isArchiveView) {
-                btn.innerText = "🏠 الحالي";
-                label.style.display = "inline-block";
-                title.innerText = "📂 الأرشيف";
-                archiveBtn.style.display = "none";
-                loadArchivedData();
-            } else {
-                btn.innerText = "📂 الأرشيف";
-                label.style.display = "none";
-                title.innerText = "📝 سجل العمليات الحالي";
-                archiveBtn.style.display = "inline-block";
-                loadHistory();
-            }
+        function hidePrintAction() {
+            document.getElementById('postPrintAction').style.display = 'none';
         }
 
         function loadHistory() {
@@ -234,125 +171,144 @@
             db.ref("history").on("value", snapshot => {
                 const data = snapshot.val() || {};
                 currentHistoryData = Object.values(data).reverse();
-                renderStats(currentHistoryData);
-                renderTable(currentHistoryData);
+                updateUI(currentHistoryData);
             });
         }
 
         async function loadArchivedData() {
             const snapshot = await db.ref("archived_history").once("value");
-            let combinedData = [];
+            let combined = [];
             if (snapshot.exists()) {
-                Object.values(snapshot.val()).forEach(archive => {
-                    if (archive.data) combinedData = combinedData.concat(Object.values(archive.data));
+                Object.values(snapshot.val()).forEach(arc => {
+                    if (arc.data) combined = combined.concat(Object.values(arc.data));
                 });
             }
-            combinedData.reverse();
-            renderStats(combinedData);
-            renderTable(combinedData);
+            combined.reverse();
+            updateUI(combined);
+        }
+
+        function updateUI(data) {
+            renderStats(data);
+            renderTable(data);
         }
 
         function calculateInvCost(inv) {
-            let invCost = 0;
-            if(inv.items && Array.isArray(inv.items)) {
+            let totalCost = 0;
+            if (inv.items) {
                 inv.items.forEach(item => {
-                    let itemCost = parseFloat(item.cost || item.pCost || 0);
-                    if (itemCost === 0) {
-                        const productKey = Object.keys(allProducts).find(k => allProducts[k].name === item.name);
-                        if (productKey) itemCost = parseFloat(allProducts[productKey].cost || 0);
+                    let costPerUnit = parseFloat(item.cost || 0);
+                    // إذا لم تكن التكلفة مخزنة في الفاتورة، نبحث عنها في المخزن
+                    if (costPerUnit === 0) {
+                        const pKey = Object.keys(allProducts).find(k => allProducts[k].name === item.name);
+                        if (pKey) costPerUnit = parseFloat(allProducts[pKey].cost || 0);
                     }
-                    invCost += (itemCost * (parseInt(item.qty) || 0));
+                    totalCost += (costPerUnit * parseInt(item.qty || 0));
                 });
             }
-            return invCost;
+            return totalCost;
         }
 
         function renderStats(data) {
             const today = new Date().toLocaleDateString('en-CA');
-            const thisMonth = today.substring(0, 7); 
-            let dSales = 0, dProfit = 0, mSales = 0, mProfit = 0;
-            let dailyTotals = {}, productQuantities = {};
+            const thisMonth = today.substring(0, 7);
+            let dS = 0, dP = 0, mS = 0, mP = 0;
+            let dailyMap = {}, productMap = {};
 
             data.forEach(inv => {
-                let invCost = calculateInvCost(inv);
-                const currentTotal = parseFloat(inv.total || 0);
-                if(inv.type === "return") invCost = -Math.abs(invCost);
-                const invProfit = currentTotal - invCost;
+                const cost = calculateInvCost(inv);
+                const total = parseFloat(inv.total || 0);
+                const profit = inv.type === 'return' ? (total + cost) : (total - cost);
 
-                if (inv.date === today) { dSales += currentTotal; dProfit += invProfit; }
-                if (inv.date && inv.date.startsWith(thisMonth)) { mSales += currentTotal; mProfit += invProfit; }
-                if(inv.date) dailyTotals[inv.date] = (dailyTotals[inv.date] || 0) + currentTotal;
-                if(inv.items) {
-                    inv.items.forEach(item => {
-                        productQuantities[item.name] = (productQuantities[item.name] || 0) + (parseInt(item.qty) || 0);
+                if (inv.date === today) { dS += total; dP += profit; }
+                if (inv.date && inv.date.startsWith(thisMonth)) { mS += total; mP += profit; }
+                
+                if (inv.date) dailyMap[inv.date] = (dailyMap[inv.date] || 0) + total;
+                if (inv.items) {
+                    inv.items.forEach(it => {
+                        productMap[it.name] = (productMap[it.name] || 0) + parseInt(it.qty || 0);
                     });
                 }
             });
 
-            document.getElementById('daySales').innerText = dSales.toLocaleString('ar-EG') + " ج.م";
-            document.getElementById('dayProfit').innerText = dProfit.toLocaleString('ar-EG') + " ج.م";
-            document.getElementById('monthSales').innerText = mSales.toLocaleString('ar-EG') + " ج.م";
-            document.getElementById('monthProfit').innerText = mProfit.toLocaleString('ar-EG') + " ج.م";
-            renderCharts(dailyTotals, productQuantities);
+            document.getElementById('daySales').innerText = dS.toLocaleString('ar-EG') + " ج.م";
+            document.getElementById('dayProfit').innerText = dP.toLocaleString('ar-EG') + " ج.م";
+            document.getElementById('monthSales').innerText = mS.toLocaleString('ar-EG') + " ج.م";
+            document.getElementById('monthProfit').innerText = mP.toLocaleString('ar-EG') + " ج.م";
+            
+            renderCharts(dailyMap, productMap);
         }
 
         function renderTable(data) {
-            const table = document.getElementById("historyTable");
-            table.innerHTML = "";
-            data.slice(0, 100).forEach(inv => {
-                const invCost = calculateInvCost(inv);
-                const currentTotal = parseFloat(inv.total || 0);
-                let displayedCost = invCost;
-                if(inv.type === 'return') displayedCost = -Math.abs(invCost);
-                const invProfit = currentTotal - displayedCost;
-                const itemsList = inv.items ? inv.items.map(it => `${it.name} (${it.qty})`).join(', ') : '---';
+            const tbody = document.getElementById("historyTable");
+            tbody.innerHTML = "";
+            
+            if (data.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='7'>لا توجد عمليات مسجلة</td></tr>";
+                return;
+            }
 
-                table.innerHTML += `
+            data.forEach(inv => {
+                const cost = calculateInvCost(inv);
+                const total = parseFloat(inv.total || 0);
+                const profit = inv.type === 'return' ? (total + cost) : (total - cost);
+                const details = inv.items ? inv.items.map(i => `${i.name} (${i.qty})`).join(' - ') : '---';
+
+                tbody.innerHTML += `
                     <tr>
-                        <td>#${inv.invoiceNum || '---'}</td>
-                        <td style="font-size:10px">${inv.date || ''}<br>${inv.time || ''}</td>
+                        <td style="font-weight:bold; color:#4b0082;">#${inv.invoiceNum || 'بدون'}</td>
+                        <td style="font-size:11px;">${inv.date || ''}<br>${inv.time || ''}</td>
                         <td class="${inv.type === 'sale' ? 'type-sale' : 'type-return'}">${inv.type === 'sale' ? 'بيع' : 'مرتجع'}</td>
-                        <td>${currentTotal.toFixed(2)}</td>
-                        <td>${Math.abs(invCost).toFixed(2)}</td>
-                        <td style="font-weight:bold; color:${invProfit >= 0 ? 'green' : 'red'}">${invProfit.toFixed(2)}</td>
-                        <td style="font-size:10px; color:#555; max-width:120px; overflow:hidden;">${itemsList}</td>
+                        <td style="font-weight:bold;">${total.toFixed(2)}</td>
+                        <td style="color:#666;">${cost.toFixed(2)}</td>
+                        <td style="font-weight:bold; color:${profit >= 0 ? 'green' : 'red'}">${profit.toFixed(2)}</td>
+                        <td style="font-size:11px; max-width:150px; color:#555;">${details}</td>
                     </tr>
                 `;
             });
         }
 
-        function renderCharts(dailyTotals, productQuantities) {
-            const dateLabels = Object.keys(dailyTotals).sort();
-            const dateValues = dateLabels.map(d => dailyTotals[d]);
-            
+        function renderCharts(dailyMap, productMap) {
+            const labels = Object.keys(dailyMap).sort();
+            const values = labels.map(l => dailyMap[l]);
+
             if (dailyChart) dailyChart.destroy();
-            dailyChart = new Chart(document.getElementById('dailySalesChart').getContext('2d'), {
+            dailyChart = new Chart(document.getElementById('dailySalesChart'), {
                 type: 'line',
                 data: {
-                    labels: dateLabels,
-                    datasets: [{ label: 'المبيعات', data: dateValues, borderColor: '#4b0082', backgroundColor: 'rgba(75, 0, 130, 0.1)', fill: true }]
+                    labels: labels,
+                    datasets: [{ label: 'المبيعات اليومية', data: values, borderColor: '#4b0082', fill: false, tension: 0.3 }]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { font: { family: 'Cairo' } } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false }
             });
 
-            const sortedProducts = Object.entries(productQuantities).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            const topProducts = Object.entries(productMap).sort((a,b) => b[1] - a[1]).slice(0, 5);
             if (productChart) productChart.destroy();
-            productChart = new Chart(document.getElementById('productQtyChart').getContext('2d'), {
+            productChart = new Chart(document.getElementById('productQtyChart'), {
                 type: 'bar',
                 data: {
-                    labels: sortedProducts.map(p => p[0]),
-                    datasets: [{ label: 'الأكثر مبيعاً', data: sortedProducts.map(p => p[1]), backgroundColor: '#f72585' }]
+                    labels: topProducts.map(p => p[0]),
+                    datasets: [{ label: 'الأكثر مبيعاً (قطع)', data: topProducts.map(p => p[1]), backgroundColor: '#f72585' }]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { font: { family: 'Cairo' } } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false }
             });
+        }
+
+        function toggleArchiveView() {
+            isArchiveView = !isArchiveView;
+            document.getElementById("archiveLabel").style.display = isArchiveView ? "inline-block" : "none";
+            document.getElementById("toggleViewBtn").innerText = isArchiveView ? "🏠 الحالي" : "📂 الأرشيف";
+            document.getElementById("tableTitle").innerText = isArchiveView ? "📂 سجل العمليات المؤرشف" : "📝 سجل العمليات الحالي";
+            if (isArchiveView) loadArchivedData(); else loadHistory();
+        }
+
+        async function archiveCurrentHistory(skipConfirm = false) {
+            if (!skipConfirm && !confirm("هل تريد تصفير ونقل السجل الحالي للأرشيف؟")) return;
+            const snap = await db.ref("history").once("value");
+            if (snap.exists()) {
+                await db.ref("archived_history").push({ archivedAt: new Date().toLocaleString(), data: snap.val() });
+                await db.ref("history").remove();
+            }
+            hidePrintAction();
         }
     </script>
 </body>
