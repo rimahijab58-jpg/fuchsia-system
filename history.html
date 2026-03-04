@@ -13,7 +13,6 @@
         .nav { margin-bottom: 25px; padding-top: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
         .nav a, .nav button { text-decoration: none; color: #fff; background: #4b0082; padding: 10px 20px; border-radius: 25px; font-weight: bold; font-size: 14px; border: none; cursor: pointer; font-family: 'Cairo'; }
         
-        /* زر التصفير بعد الطباعة - يظهر فقط عند الحاجة */
         #postPrintAction { 
             display: none; 
             background: #ff8c00; 
@@ -81,7 +80,6 @@
         <button id="toggleViewBtn" onclick="toggleArchiveView()" style="background:#6c757d;">📂 عرض الأرشيف</button>
     </div>
 
-    <!-- هذا الزر يظهر فقط بعد الضغط على طباعة ليتم المسح يدوياً بعد العودة -->
     <div id="postPrintAction">
         <p style="margin:0 0 10px 0; font-weight:bold;">هل انتهيت من الطباعة بنجاح؟</p>
         <button onclick="archiveCurrentHistory(true)" style="background:white; color:#ff8c00; border:none; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">نعم، تصفير السجل الآن ✅</button>
@@ -157,16 +155,25 @@
         let dailyChart, productChart;
         let allProducts = {};
         let isArchiveView = false;
+        let currentHistoryData = [];
 
-        // دالة تشغيل الطباعة وإظهار زر التصفير
-        function smartPrintTrigger() {
+        // تحسين دالة الطباعة لضمان ظهور البيانات
+        async function smartPrintTrigger() {
+            // 1. فحص إذا كان هناك بيانات أصلاً
+            if (currentHistoryData.length === 0) {
+                alert("السجل فارغ، لا يوجد شيء لطباعته!");
+                return;
+            }
+
             window.scrollTo(0,0);
-            // إظهار تنبيه التصفير للمستخدم ليضغط عليه بعد العودة
+            
+            // 2. إظهار زر التصفير
             document.getElementById('postPrintAction').style.display = 'block';
             
+            // 3. مهلة زمنية للتأكد من استقرار المتصفح قبل فتح نافذة الطباعة
             setTimeout(() => { 
                 window.print(); 
-            }, 500);
+            }, 800);
         }
 
         function hidePrintAction() {
@@ -178,7 +185,6 @@
             loadHistory();
         });
 
-        // تصفير السجل الحالي ونقله للأرشيف
         async function archiveCurrentHistory(skipConfirm = false) {
             if (!skipConfirm) {
                 if (!confirm("هل أنت متأكد من تصفير السجل الحالي ونقله للأرشيف؟")) return;
@@ -229,9 +235,9 @@
             if (isArchiveView) return;
             db.ref("history").on("value", snapshot => {
                 const data = snapshot.val() || {};
-                const historyArray = Object.values(data).reverse();
-                renderStats(historyArray);
-                renderTable(historyArray);
+                currentHistoryData = Object.values(data).reverse();
+                renderStats(currentHistoryData);
+                renderTable(currentHistoryData);
             });
         }
 
