@@ -10,8 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Cairo', sans-serif; background: #f0f2f5; padding: 10px; text-align: center; margin: 0; }
-        .nav { margin-bottom: 25px; padding-top: 10px; }
-        .nav a { text-decoration: none; color: #fff; background: #4b0082; padding: 10px 20px; border-radius: 25px; font-weight: bold; font-size: 14px; }
+        .nav { margin-bottom: 25px; padding-top: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .nav a, .nav button { text-decoration: none; color: #fff; background: #4b0082; padding: 10px 20px; border-radius: 25px; font-weight: bold; font-size: 14px; border: none; cursor: pointer; font-family: 'Cairo'; }
         
         .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; padding: 0 10px; }
         .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-bottom: 5px solid #4b0082; }
@@ -32,38 +32,16 @@
         .type-sale { color: #28a745; font-weight: bold; }
         .type-return { color: #d9534f; font-weight: bold; }
 
-        /* تنسيقات الطباعة المحسنة للموبايل (كروم خاصة) */
+        .archive-status { background: #ffc107; color: #000; padding: 5px 15px; border-radius: 15px; display: inline-block; margin-bottom: 10px; font-size: 12px; font-weight: bold; display: none; }
+
         @media print {
-            @page { size: auto; margin: 10mm; }
-            html, body { background: #fff !important; height: auto !important; overflow: visible !important; }
-            .nav, .summary-cards, .charts-container, h3 { display: none !important; }
-            .container { 
-                box-shadow: none !important; 
-                width: 100% !important; 
-                max-width: none !important; 
-                margin: 0 !important; 
-                padding: 0 !important; 
-                display: block !important;
-            }
-            .table-responsive { 
-                overflow: visible !important; 
-                display: block !important;
-                width: 100% !important;
-            }
-            table { 
-                width: 100% !important; 
-                min-width: 100% !important; 
-                border: 1px solid #000;
-                table-layout: auto !important;
-            }
-            th, td { 
-                border: 1px solid #000 !important; 
-                color: #000 !important; 
-                font-size: 12px !important;
-                background: none !important;
-                word-wrap: break-word !important;
-            }
-            th { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact; }
+            @page { size: auto; margin: 5mm; }
+            html, body { background: #fff !important; height: auto !important; overflow: visible !important; width: 100% !important; }
+            .nav, .summary-cards, .charts-container, h3, .archive-status { display: none !important; }
+            .container { box-shadow: none !important; width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; display: block !important; visibility: visible !important; }
+            .table-responsive { overflow: visible !important; display: block !important; width: 100% !important; visibility: visible !important; }
+            table { width: 100% !important; border: 1px solid #000 !important; visibility: visible !important; }
+            th, td { border: 1px solid #000 !important; color: #000 !important; background: #fff !important; visibility: visible !important; }
         }
 
         @media (min-width: 768px) {
@@ -76,9 +54,11 @@
 <body>
 
     <div class="nav">
-        <a href="index.html">🏠 العودة للفاتورة</a>
-        <a href="products.html">📦 إدارة المخزن</a>
-        <button onclick="smartPrint()" style="background:#28a745; color:white; border:none; padding:10px 20px; border-radius:25px; cursor:pointer; font-weight:bold; font-family:'Cairo'; margin-right:10px;">🖨️ طباعة السجل</button>
+        <a href="index.html">🏠 الفاتورة</a>
+        <a href="products.html">📦 المخزن</a>
+        <button onclick="smartPrint()" style="background:#28a745;">🖨️ طباعة</button>
+        <button id="archiveBtn" onclick="archiveCurrentHistory()" style="background:#dc3545;">🧹 تصفير السجل</button>
+        <button id="toggleViewBtn" onclick="toggleArchiveView()" style="background:#6c757d;">📂 عرض الأرشيف</button>
     </div>
 
     <div class="summary-cards">
@@ -100,9 +80,10 @@
         </div>
     </div>
 
-    <div class="container" id="mainContainer">
-        <h3>📊 الرسوم البيانية</h3>
-        <div class="charts-container">
+    <div class="container" id="printableArea">
+        <div id="archiveLabel" class="archive-status">⚠️ أنت تستعرض الأرشيف (سجلات قديمة)</div>
+        <h3 class="no-print">📊 الإحصائيات</h3>
+        <div class="charts-container no-print">
             <div class="chart-box" style="height: 300px; position: relative;">
                 <canvas id="dailySalesChart"></canvas>
             </div>
@@ -111,7 +92,7 @@
             </div>
         </div>
 
-        <h3>📝 سجل العمليات الأخير</h3>
+        <h3 id="tableTitle">📝 سجل العمليات الحالي</h3>
         <div class="table-responsive">
             <table>
                 <thead>
@@ -145,14 +126,12 @@
 
         let dailyChart, productChart;
         let allProducts = {};
+        let isArchiveView = false;
+        let historyRef = db.ref("history");
 
-        // وظيفة الطباعة الذكية للموبايل
         function smartPrint() {
-            // إجبار المتصفح على إعادة حساب التنسيقات قبل الطباعة
             window.scrollTo(0,0);
-            setTimeout(() => {
-                window.print();
-            }, 500);
+            setTimeout(() => { window.print(); }, 800);
         }
 
         db.ref("products").on("value", snapshot => {
@@ -160,15 +139,79 @@
             loadHistory();
         });
 
-        function loadHistory() {
-            db.ref("history").on("value", snapshot => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    const historyArray = Object.values(data).reverse();
-                    renderStats(historyArray);
-                    renderTable(historyArray);
-                }
+        // تصفير السجل (الأرشفة)
+        async function archiveCurrentHistory() {
+            if (!confirm("هل أنت متأكد من تصفير السجل الحالي ونقله للأرشيف؟ سيتم مسح السجل من الواجهة الرئيسية وتصفير العدادات.")) return;
+
+            const snapshot = await db.ref("history").once("value");
+            if (!snapshot.exists()) {
+                alert("السجل فارغ بالفعل!");
+                return;
+            }
+
+            const historyData = snapshot.val();
+            const archiveRef = db.ref("archived_history").push();
+            
+            // نقل البيانات للأرشيف مع إضافة تاريخ الأرشفة
+            await archiveRef.set({
+                archivedAt: new Date().toLocaleString(),
+                data: historyData
             });
+
+            // مسح السجل الحالي
+            await db.ref("history").remove();
+            alert("تم تصفير السجل ونقله للأرشيف بنجاح.");
+        }
+
+        // التبديل بين الأرشيف والسجل الحالي
+        function toggleArchiveView() {
+            isArchiveView = !isArchiveView;
+            const btn = document.getElementById("toggleViewBtn");
+            const label = document.getElementById("archiveLabel");
+            const title = document.getElementById("tableTitle");
+            const archiveBtn = document.getElementById("archiveBtn");
+
+            if (isArchiveView) {
+                btn.innerText = "🏠 العودة للحالي";
+                btn.style.background = "#4b0082";
+                label.style.display = "inline-block";
+                title.innerText = "📂 أرشيف العمليات السابقة";
+                archiveBtn.style.display = "none";
+                loadArchivedData();
+            } else {
+                btn.innerText = "📂 عرض الأرشيف";
+                btn.style.background = "#6c757d";
+                label.style.display = "none";
+                title.innerText = "📝 سجل العمليات الحالي";
+                archiveBtn.style.display = "inline-block";
+                loadHistory();
+            }
+        }
+
+        function loadHistory() {
+            if (isArchiveView) return;
+            db.ref("history").on("value", snapshot => {
+                const data = snapshot.val() || {};
+                const historyArray = Object.values(data).reverse();
+                renderStats(historyArray);
+                renderTable(historyArray);
+            });
+        }
+
+        async function loadArchivedData() {
+            const snapshot = await db.ref("archived_history").once("value");
+            let combinedData = [];
+            if (snapshot.exists()) {
+                const archives = snapshot.val();
+                Object.values(archives).forEach(archive => {
+                    if (archive.data) {
+                        combinedData = combinedData.concat(Object.values(archive.data));
+                    }
+                });
+            }
+            combinedData.reverse();
+            renderStats(combinedData);
+            renderTable(combinedData);
         }
 
         function calculateInvCost(inv) {
@@ -178,12 +221,9 @@
                     let itemCost = parseFloat(item.cost || item.pCost || 0);
                     if (itemCost === 0) {
                         const productKey = Object.keys(allProducts).find(k => allProducts[k].name === item.name);
-                        if (productKey) {
-                            itemCost = parseFloat(allProducts[productKey].cost || 0);
-                        }
+                        if (productKey) itemCost = parseFloat(allProducts[productKey].cost || 0);
                     }
-                    const itemQty = parseInt(item.qty || 0);
-                    invCost += (itemCost * itemQty);
+                    invCost += (itemCost * (parseInt(item.qty) || 0));
                 });
             }
             return invCost;
@@ -192,7 +232,6 @@
         function renderStats(data) {
             const today = new Date().toLocaleDateString('en-CA');
             const thisMonth = today.substring(0, 7); 
-
             let dSales = 0, dProfit = 0, mSales = 0, mProfit = 0;
             let dailyTotals = {}, productQuantities = {};
 
@@ -202,16 +241,10 @@
                 if(inv.type === "return") invCost = -Math.abs(invCost);
                 const invProfit = currentTotal - invCost;
 
-                if (inv.date === today) {
-                    dSales += currentTotal;
-                    dProfit += invProfit;
-                }
-                if (inv.date && inv.date.startsWith(thisMonth)) {
-                    mSales += currentTotal;
-                    mProfit += invProfit;
-                }
+                if (inv.date === today) { dSales += currentTotal; dProfit += invProfit; }
+                if (inv.date && inv.date.startsWith(thisMonth)) { mSales += currentTotal; mProfit += invProfit; }
                 if(inv.date) dailyTotals[inv.date] = (dailyTotals[inv.date] || 0) + currentTotal;
-                if(inv.items && Array.isArray(inv.items)) {
+                if(inv.items) {
                     inv.items.forEach(item => {
                         productQuantities[item.name] = (productQuantities[item.name] || 0) + (parseInt(item.qty) || 0);
                     });
@@ -222,37 +255,29 @@
             document.getElementById('dayProfit').innerText = dProfit.toLocaleString('ar-EG') + " ج.م";
             document.getElementById('monthSales').innerText = mSales.toLocaleString('ar-EG') + " ج.م";
             document.getElementById('monthProfit').innerText = mProfit.toLocaleString('ar-EG') + " ج.م";
-
             renderCharts(dailyTotals, productQuantities);
         }
 
         function renderTable(data) {
             const table = document.getElementById("historyTable");
             table.innerHTML = "";
-
             data.slice(0, 100).forEach(inv => {
                 const invCost = calculateInvCost(inv);
                 const currentTotal = parseFloat(inv.total || 0);
                 let displayedCost = invCost;
                 if(inv.type === 'return') displayedCost = -Math.abs(invCost);
                 const invProfit = currentTotal - displayedCost;
-
-                let itemsList = "";
-                if(inv.items && Array.isArray(inv.items)) {
-                    itemsList = inv.items.map(it => `${it.name} (${it.qty})`).join(', ');
-                }
+                const itemsList = inv.items ? inv.items.map(it => `${it.name} (${it.qty})`).join(', ') : '---';
 
                 table.innerHTML += `
                     <tr>
                         <td>#${inv.invoiceNum || '---'}</td>
                         <td style="font-size:11px">${inv.date || '---'}<br>${inv.time || ''}</td>
-                        <td class="${inv.type === 'sale' ? 'type-sale' : 'type-return'}">
-                            ${inv.type === 'sale' ? 'بيع' : 'مرتجع'}
-                        </td>
+                        <td class="${inv.type === 'sale' ? 'type-sale' : 'type-return'}">${inv.type === 'sale' ? 'بيع' : 'مرتجع'}</td>
                         <td>${currentTotal.toFixed(2)}</td>
-                        <td style="color:#666">${Math.abs(invCost).toFixed(2)}</td>
+                        <td>${Math.abs(invCost).toFixed(2)}</td>
                         <td style="font-weight:bold; color:${invProfit >= 0 ? 'green' : 'red'}">${invProfit.toFixed(2)}</td>
-                        <td style="font-size:10px; color:#555; max-width:150px">${itemsList || 'لا يوجد تفاصيل'}</td>
+                        <td style="font-size:10px; color:#555">${itemsList}</td>
                     </tr>
                 `;
             });
@@ -262,35 +287,22 @@
             const dateLabels = Object.keys(dailyTotals).sort();
             const dateValues = dateLabels.map(d => dailyTotals[d]);
             if (dailyChart) dailyChart.destroy();
-            const ctx1 = document.getElementById('dailySalesChart').getContext('2d');
-            dailyChart = new Chart(ctx1, {
+            dailyChart = new Chart(document.getElementById('dailySalesChart').getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: dateLabels,
-                    datasets: [{
-                        label: 'المبيعات',
-                        data: dateValues,
-                        borderColor: '#4b0082',
-                        backgroundColor: 'rgba(75, 0, 130, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }]
+                    datasets: [{ label: 'المبيعات', data: dateValues, borderColor: '#4b0082', backgroundColor: 'rgba(75, 0, 130, 0.1)', fill: true }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
             const sortedProducts = Object.entries(productQuantities).sort((a, b) => b[1] - a[1]).slice(0, 8);
             if (productChart) productChart.destroy();
-            const ctx2 = document.getElementById('productQtyChart').getContext('2d');
-            productChart = new Chart(ctx2, {
+            productChart = new Chart(document.getElementById('productQtyChart').getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: sortedProducts.map(p => p[0]),
-                    datasets: [{
-                        label: 'القطع المباعة',
-                        data: sortedProducts.map(p => p[1]),
-                        backgroundColor: '#f72585'
-                    }]
+                    datasets: [{ label: 'القطع', data: sortedProducts.map(p => p[1]), backgroundColor: '#f72585' }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
