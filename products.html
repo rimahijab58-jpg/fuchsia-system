@@ -2,185 +2,240 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>فوشيا - إدارة المخزن الشاملة</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; text-align: center; }
-        .nav { margin-bottom: 20px; }
-        .nav a { text-decoration: none; color: #7209b7; margin: 0 10px; font-weight: bold; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .input-group { background: #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
-        input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-        button { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; }
-        .btn-save { background: #28a745; }
-        .btn-excel { background: #1d6f42; }
-        .btn-edit { background: #ffc107; color: #000; margin-left: 5px; }
-        .btn-delete { background: #dc3545; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
-        th { background-color: #7209b7; color: white; }
-        .excel-section { border-top: 2px dashed #7209b7; padding-top: 15px; margin-top: 15px; font-size: 14px; }
+        body { font-family: 'Cairo', sans-serif; background: #f4f4f4; padding: 10px; text-align: center; margin: 0; }
+        .nav { margin-bottom: 20px; background: white; padding: 10px; border-radius: 50px; display: inline-flex; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .nav a { text-decoration: none; color: #4b0082; font-weight: bold; font-size: 14px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .input-group { background: #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; flex: 1; min-width: 120px; text-align: center; }
+        button { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-add { background: #4b0082; color: white; width: 100%; max-width: 200px; }
+        .btn-update { background: #28a745; color: white; display: none; }
+        .btn-cancel { background: #666; color: white; display: none; }
+        
+        .search-box { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 25px; border: 1px solid #ddd; font-size: 16px; }
+
+        .table-responsive { width: 100%; overflow-x: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 14px; }
+        th { background: #4b0082; color: white; }
+        tr:nth-child(even) { background: #f9f9f9; }
+
+        .actions { display: flex; gap: 5px; justify-content: center; }
+        .btn-edit { background: #ffc107; color: black; padding: 5px 10px; font-size: 12px; }
+        .btn-del { background: #dc3545; color: white; padding: 5px 10px; font-size: 12px; }
+
+        .excel-section { margin-top: 20px; padding: 15px; border-top: 2px dashed #ccc; }
+        
+        #stats { display: flex; justify-content: space-around; margin-bottom: 15px; font-weight: bold; color: #4b0082; font-size: 13px; }
     </style>
 </head>
 <body>
 
-<div class="nav">
-    <a href="index.html">🧾 الفاتورة</a> | <a href="history.html">📊 التقارير</a>
-</div>
-
-<div class="container">
-    <h1>📦 إدارة مخزن فوشيا</h1>
-
-    <div class="input-group">
-        <input type="hidden" id="editKey"> <input type="text" id="pName" placeholder="اسم المنتج">
-        <input type="number" id="pPrice" placeholder="السعر">
-        <input type="number" id="pStock" placeholder="الكمية">
-        <button class="btn-save" id="saveBtn" onclick="saveProduct()">حفظ المنتج ✅</button>
-        <button id="cancelBtn" style="background:#6c757d; display:none;" onclick="resetForm()">إلغاء</button>
+    <div class="nav">
+        <a href="index.html">🏠 الفاتورة</a>
+        <a href="history.html">📊 السجل</a>
     </div>
 
-    <div class="excel-section">
-        <strong>📥 استيراد من إكسيل: </strong>
-        <input type="file" id="excelFile" accept=".xlsx, .xls">
-        <button class="btn-excel" onclick="importExcel()">رفع الملف 📁</button>
+    <div class="container">
+        <h2>📦 إدارة المخزن</h2>
+
+        <div id="stats">
+            <span>إجمالي الأصناف: <span id="countItems">0</span></span>
+            <span>إجمالي قطع المخزن: <span id="countStock">0</span></span>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="pName" placeholder="اسم المنتج">
+            <input type="number" id="pCost" placeholder="التكلفة">
+            <input type="number" id="pPrice" placeholder="سعر البيع">
+            <input type="number" id="pStock" placeholder="الكمية">
+            <button class="btn-add" id="addBtn" onclick="saveProduct()">إضافة منتج +</button>
+            <button class="btn-update" id="updateBtn">تحديث</button>
+            <button class="btn-cancel" id="cancelBtn" onclick="resetForm()">إلغاء</button>
+        </div>
+
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 ابحث في المخزن..." oninput="filterTable()">
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>المنتج</th>
+                        <th>التكلفة</th>
+                        <th>سعر البيع</th>
+                        <th>المخزن</th>
+                        <th>الربح المتوقع</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="plist"></tbody>
+            </table>
+        </div>
+
+        <div class="excel-section">
+            <h4>📥 استيراد من إكسيل</h4>
+            <p style="font-size: 11px; color: #666;">يجب أن يحتوي الملف على أعمدة باسم (الاسم، التكلفة، السعر، الكمية)</p>
+            <input type="file" id="excelFile" accept=".xlsx, .xls">
+            <button onclick="importExcel()" style="background: #1d6f42; color: white; margin-top: 10px;">بدء الاستيراد</button>
+        </div>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>الاسم</th>
-                <th>السعر</th>
-                <th>المخزن</th>
-                <th>إجراءات</th>
-            </tr>
-        </thead>
-        <tbody id="productTable"></tbody>
-    </table>
-</div>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
+            databaseURL: "https://fuchsia-web-e1ffe-default-rtdb.firebaseio.com",
+            projectId: "fuchsia-web-e1ffe",
+            appId: "1:1036149958008:web:673873d603b7fcbb29148d"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+        let allProducts = {};
+        let editingId = null;
 
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
-  authDomain: "fuchsia-web-e1ffe.firebaseapp.com",
-  databaseURL: "https://fuchsia-web-e1ffe-default-rtdb.firebaseio.com",
-  projectId: "fuchsia-web-e1ffe",
-  storageBucket: "fuchsia-web-e1ffe.firebasestorage.app",
-  messagingSenderId: "1036149958008",
-  appId: "1:1036149958008:web:673873d603b7fcbb29148d"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-let allProducts = {};
-
-// عرض المنتجات
-db.ref("products").on("value", (snapshot) => {
-    allProducts = snapshot.val() || {};
-    const tbody = document.getElementById("productTable");
-    tbody.innerHTML = "";
-    Object.keys(allProducts).forEach(id => {
-        const p = allProducts[id];
-        tbody.innerHTML += `
-            <tr>
-                <td>${p.name}</td>
-                <td>${p.price} ج.م</td>
-                <td>${p.stock}</td>
-                <td>
-                    <button class="btn-edit" onclick="editProduct('${id}')">تعديل 📝</button>
-                    <button class="btn-delete" onclick="deleteProduct('${id}')">حذف 🗑️</button>
-                </td>
-            </tr>`;
-    });
-});
-
-// حفظ أو تحديث المنتج
-async function saveProduct() {
-    const editKey = document.getElementById("editKey").value;
-    const name = document.getElementById("pName").value.trim();
-    const price = parseFloat(document.getElementById("pPrice").value);
-    const stock = parseInt(document.getElementById("pStock").value);
-
-    if (!name || isNaN(price) || isNaN(stock)) return alert("يرجى ملء كافة البيانات");
-
-    if (editKey) {
-        // حالة التعديل لمنتج موجود (تعديل مباشر)
-        await db.ref("products/" + editKey).update({ name, price, stock });
-        alert("تم تعديل المنتج بنجاح!");
-    } else {
-        // حالة الإضافة (مع فحص التكرار لزيادة الكمية)
-        let existingId = null;
-        Object.keys(allProducts).forEach(id => {
-            if (allProducts[id].name.toLowerCase() === name.toLowerCase()) existingId = id;
+        // جلب البيانات
+        db.ref("products").on("value", snapshot => {
+            allProducts = snapshot.val() || {};
+            renderTable(allProducts);
         });
 
-        if (existingId) {
-            let newStock = allProducts[existingId].stock + stock;
-            await db.ref("products/" + existingId).update({ price, stock: newStock });
-            alert("الصنف موجود.. تم زيادة الكمية بنجاح!");
-        } else {
-            await db.ref("products").push({ name, price, stock });
-            alert("تم إضافة منتج جديد!");
+        function renderTable(data) {
+            const list = document.getElementById("plist");
+            list.innerHTML = "";
+            let totalQty = 0;
+            let itemsCount = 0;
+
+            Object.keys(data).forEach(id => {
+                const p = data[id];
+                itemsCount++;
+                totalQty += (p.stock || 0);
+                const profit = (p.price || 0) - (p.cost || 0);
+
+                list.innerHTML += `
+                    <tr>
+                        <td style="font-weight:bold">${p.name}</td>
+                        <td style="color: #666">${(p.cost || 0).toFixed(2)}</td>
+                        <td style="color: #4b0082; font-weight:bold">${(p.price || 0).toFixed(2)}</td>
+                        <td style="background: ${p.stock < 5 ? '#fff0f0' : 'transparent'}">${p.stock || 0}</td>
+                        <td style="color: green">${profit.toFixed(2)}</td>
+                        <td class="actions">
+                            <button class="btn-edit" onclick="editProduct('${id}')">📝</button>
+                            <button class="btn-del" onclick="deleteProduct('${id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById("countItems").innerText = itemsCount;
+            document.getElementById("countStock").innerText = totalQty;
         }
-    }
-    resetForm();
-}
 
-// تحضير الخانات للتعديل
-function editProduct(id) {
-    const p = allProducts[id];
-    document.getElementById("editKey").value = id;
-    document.getElementById("pName").value = p.name;
-    document.getElementById("pPrice").value = p.price;
-    document.getElementById("pStock").value = p.stock;
-    document.getElementById("saveBtn").innerText = "تحديث البيانات 🔄";
-    document.getElementById("cancelBtn").style.display = "inline-block";
-}
-
-function resetForm() {
-    document.getElementById("editKey").value = "";
-    document.getElementById("pName").value = "";
-    document.getElementById("pPrice").value = "";
-    document.getElementById("pStock").value = "";
-    document.getElementById("saveBtn").innerText = "حفظ المنتج ✅";
-    document.getElementById("cancelBtn").style.display = "none";
-}
-
-// استيراد إكسيل
-function importExcel() {
-    const file = document.getElementById("excelFile").files[0];
-    if (!file) return alert("اختار ملف!");
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-        for (let row of rows) {
-            const name = (row.الاسم || row.name || "").toString();
-            const price = parseFloat(row.السعر || row.price || 0);
-            const stock = parseInt(row.الكمية || row.stock || 0);
-            if (name) {
-                let existId = null;
-                Object.keys(allProducts).forEach(id => {
-                    if (allProducts[id].name.toLowerCase() === name.toLowerCase()) existId = id;
-                });
-                if (existId) {
-                    await db.ref("products/" + existId).update({ stock: allProducts[existId].stock + stock, price });
-                } else {
-                    await db.ref("products").push({ name, price, stock });
+        function filterTable() {
+            const term = document.getElementById("searchInput").value.toLowerCase();
+            const filtered = {};
+            Object.keys(allProducts).forEach(id => {
+                if (allProducts[id].name.toLowerCase().includes(term)) {
+                    filtered[id] = allProducts[id];
                 }
+            });
+            renderTable(filtered);
+        }
+
+        function saveProduct() {
+            const name = document.getElementById("pName").value.trim();
+            const cost = parseFloat(document.getElementById("pCost").value) || 0;
+            const price = parseFloat(document.getElementById("pPrice").value) || 0;
+            const stock = parseInt(document.getElementById("pStock").value) || 0;
+
+            if (!name || price <= 0) return alert("يرجى إدخال اسم المنتج وسعر البيع");
+
+            db.ref("products").push({ name, cost, price, stock });
+            resetForm();
+        }
+
+        function editProduct(id) {
+            editingId = id;
+            const p = allProducts[id];
+            document.getElementById("pName").value = p.name;
+            document.getElementById("pCost").value = p.cost || 0;
+            document.getElementById("pPrice").value = p.price;
+            document.getElementById("pStock").value = p.stock;
+
+            document.getElementById("addBtn").style.display = "none";
+            document.getElementById("updateBtn").style.display = "inline-block";
+            document.getElementById("cancelBtn").style.display = "inline-block";
+
+            document.getElementById("updateBtn").onclick = function() {
+                const name = document.getElementById("pName").value.trim();
+                const cost = parseFloat(document.getElementById("pCost").value) || 0;
+                const price = parseFloat(document.getElementById("pPrice").value) || 0;
+                const stock = parseInt(document.getElementById("pStock").value) || 0;
+
+                db.ref("products/" + id).update({ name, cost, price, stock });
+                resetForm();
+            };
+        }
+
+        function deleteProduct(id) {
+            if (confirm("هل أنت متأكد من حذف هذا المنتج نهائياً؟")) {
+                db.ref("products/" + id).remove();
             }
         }
-        alert("تم استيراد الملف وتحديث المخزن!");
-    };
-    reader.readAsArrayBuffer(file);
-}
 
-function deleteProduct(id) {
-    if (confirm("حذف المنتج؟")) db.ref("products/" + id).remove();
-}
-</script>
+        function resetForm() {
+            editingId = null;
+            document.getElementById("pName").value = "";
+            document.getElementById("pCost").value = "";
+            document.getElementById("pPrice").value = "";
+            document.getElementById("pStock").value = "";
+            document.getElementById("addBtn").style.display = "inline-block";
+            document.getElementById("updateBtn").style.display = "none";
+            document.getElementById("cancelBtn").style.display = "none";
+        }
+
+        function importExcel() {
+            const file = document.getElementById("excelFile").files[0];
+            if (!file) return alert("اختار ملف!");
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                
+                for (let row of rows) {
+                    const name = (row.الاسم || row.name || "").toString();
+                    const cost = parseFloat(row.التكلفة || row.cost || 0);
+                    const price = parseFloat(row.السعر || row.price || 0);
+                    const stock = parseInt(row.الكمية || row.stock || 0);
+
+                    if (name) {
+                        let existId = null;
+                        Object.keys(allProducts).forEach(id => {
+                            if (allProducts[id].name.toLowerCase() === name.toLowerCase()) existId = id;
+                        });
+
+                        if (existId) {
+                            await db.ref("products/" + existId).update({ 
+                                stock: allProducts[existId].stock + stock, 
+                                price,
+                                cost 
+                            });
+                        } else {
+                            await db.ref("products").push({ name, cost, price, stock });
+                        }
+                    }
+                }
+                alert("تم استيراد الملف وتحديث المخزن!");
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
 </body>
 </html>
