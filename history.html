@@ -13,6 +13,24 @@
         .nav { margin-bottom: 25px; padding-top: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
         .nav a, .nav button { text-decoration: none; color: #fff; background: #4b0082; padding: 10px 20px; border-radius: 25px; font-weight: bold; font-size: 14px; border: none; cursor: pointer; font-family: 'Cairo'; }
         
+        /* زر التصفير بعد الطباعة - يظهر فقط عند الحاجة */
+        #postPrintAction { 
+            display: none; 
+            background: #ff8c00; 
+            color: white; 
+            padding: 15px; 
+            margin: 10px auto; 
+            border-radius: 10px; 
+            width: fit-content;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
         .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; padding: 0 10px; }
         .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-bottom: 5px solid #4b0082; }
         .card h2 { margin: 0; color: #666; font-size: 13px; }
@@ -34,51 +52,16 @@
 
         .archive-status { background: #ffc107; color: #000; padding: 5px 15px; border-radius: 15px; display: inline-block; margin-bottom: 10px; font-size: 12px; font-weight: bold; display: none; }
 
-        /* تعديلات الطباعة */
         @media print {
             @page { size: auto; margin: 10mm; }
-            html, body { 
-                background: #fff !important; 
-                height: auto !important; 
-                overflow: visible !important; 
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            .nav, .summary-cards, .charts-container, .no-print, .archive-status, #archiveBtn, #toggleViewBtn { 
+            html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+            .nav, .summary-cards, .charts-container, .no-print, .archive-status, #archiveBtn, #toggleViewBtn, #postPrintAction { 
                 display: none !important; 
-                visibility: hidden !important;
             }
-            .container { 
-                box-shadow: none !important; 
-                width: 100% !important; 
-                max-width: none !important; 
-                margin: 0 !important; 
-                padding: 10px !important; 
-                display: block !important; 
-                visibility: visible !important;
-            }
-            .table-responsive { 
-                overflow: visible !important; 
-                display: block !important; 
-                width: 100% !important; 
-                visibility: visible !important;
-            }
-            table { 
-                width: 100% !important; 
-                border: 1px solid #000 !important; 
-                visibility: visible !important;
-            }
-            th, td { 
-                border: 1px solid #ccc !important; 
-                color: #000 !important; 
-                background: #fff !important; 
-                visibility: visible !important;
-            }
-            #tableTitle {
-                display: block !important;
-                visibility: visible !important;
-            }
+            .container { box-shadow: none !important; width: 100% !important; max-width: none !important; margin: 0 !important; padding: 10px !important; }
+            .table-responsive { overflow: visible !important; }
+            table { width: 100% !important; border: 1px solid #000 !important; }
+            th, td { border: 1px solid #ccc !important; color: #000 !important; background: #fff !important; }
         }
 
         @media (min-width: 768px) {
@@ -93,9 +76,16 @@
     <div class="nav">
         <a href="index.html">🏠 الفاتورة</a>
         <a href="products.html">📦 المخزن</a>
-        <button onclick="smartPrint()" style="background:#28a745;">🖨️ طباعة وتصفير</button>
+        <button onclick="smartPrintTrigger()" style="background:#28a745;">🖨️ طباعة السجل</button>
         <button id="archiveBtn" onclick="archiveCurrentHistory()" style="background:#dc3545;">🧹 تصفير يدوي</button>
         <button id="toggleViewBtn" onclick="toggleArchiveView()" style="background:#6c757d;">📂 عرض الأرشيف</button>
+    </div>
+
+    <!-- هذا الزر يظهر فقط بعد الضغط على طباعة ليتم المسح يدوياً بعد العودة -->
+    <div id="postPrintAction">
+        <p style="margin:0 0 10px 0; font-weight:bold;">هل انتهيت من الطباعة بنجاح؟</p>
+        <button onclick="archiveCurrentHistory(true)" style="background:white; color:#ff8c00; border:none; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">نعم، تصفير السجل الآن ✅</button>
+        <button onclick="hidePrintAction()" style="background:transparent; color:white; border:1px solid white; margin-right:5px; padding:8px 15px; border-radius:5px; cursor:pointer;">إلغاء</button>
     </div>
 
     <div class="summary-cards">
@@ -168,30 +158,19 @@
         let allProducts = {};
         let isArchiveView = false;
 
-        // دالة الطباعة الذكية التي تتبعها عملية مسح
-        function smartPrint() {
+        // دالة تشغيل الطباعة وإظهار زر التصفير
+        function smartPrintTrigger() {
             window.scrollTo(0,0);
+            // إظهار تنبيه التصفير للمستخدم ليضغط عليه بعد العودة
+            document.getElementById('postPrintAction').style.display = 'block';
             
-            // تعريف المستمع للعودة من الطباعة
-            const handleReturnFromPrint = function() {
-                // إزالة المستمع فوراً لكي لا يتكرر
-                window.removeEventListener('afterprint', handleReturnFromPrint);
-                
-                // مهلة بسيطة لضمان استقرار الواجهة بعد إغلاق نافذة الطباعة
-                setTimeout(() => {
-                    if (confirm("تم الانتهاء من المعاينة. هل تريد مسح السجل الحالي ونقله للأرشيف الآن؟")) {
-                        archiveCurrentHistory(true); // true تعني تجاوز رسالة التأكيد الثانية
-                    }
-                }, 800);
-            };
-
-            // إضافة المستمع قبل استدعاء نافذة الطباعة
-            window.addEventListener('afterprint', handleReturnFromPrint);
-            
-            // فتح نافذة الطباعة
             setTimeout(() => { 
                 window.print(); 
             }, 500);
+        }
+
+        function hidePrintAction() {
+            document.getElementById('postPrintAction').style.display = 'none';
         }
 
         db.ref("products").on("value", snapshot => {
@@ -208,6 +187,7 @@
             const snapshot = await db.ref("history").once("value");
             if (!snapshot.exists()) {
                 if (!skipConfirm) alert("السجل فارغ بالفعل!");
+                hidePrintAction();
                 return;
             }
             
@@ -218,12 +198,11 @@
                 data: historyData 
             });
             
-            // مسح السجل الحالي من داتابيز
             await db.ref("history").remove();
+            hidePrintAction();
             alert("تم التصفير بنجاح ونقل البيانات للأرشيف.");
         }
 
-        // التبديل بين عرض السجل الحالي والأرشيف
         function toggleArchiveView() {
             isArchiveView = !isArchiveView;
             const btn = document.getElementById("toggleViewBtn");
