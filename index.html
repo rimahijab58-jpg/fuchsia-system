@@ -2,214 +2,187 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FUCHSIA POS - فوشيا</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #4b0082;
             --return-color: #d9534f;
-            --bg-gray: #f4f7f6;
         }
 
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        * { 
+            box-sizing: border-box; 
+            font-family: 'Cairo', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
         
         body { 
-            background-color: #e2e8f0; 
+            background-color: #f1f5f9; 
             margin: 0; 
-            padding: 5px; 
+            padding: 10px; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
+            min-height: 100vh;
+        }
+
+        .container { 
+            width: 100%;
+            max-width: 550px; 
+            background: white; 
+            padding: 20px; 
+            border: 1px solid #000; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            position: relative;
         }
 
         @media print {
+            @page { margin: 0; size: auto; }
             .no-print { display: none !important; }
-            body { background: white !important; padding: 0; }
-            .container { border: none !important; box-shadow: none !important; width: 100% !important; margin: 0 !important; padding: 10px !important; }
+            body { background: white; padding: 0; margin: 0; }
+            .container { border: none !important; width: 100% !important; max-width: 100% !important; padding: 15px !important; }
+            table { border: 1px solid #000 !important; }
+            th, td { border: 1px solid #000 !important; }
         }
 
-        /* Nav & Style - No Changes to Top Part */
-        .nav-container {
-            width: 100%;
-            max-width: 650px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
+        /* الناف بار */
+        .nav-container { width: 100%; max-width: 550px; margin-bottom: 12px; }
         .nav-bar {
             background: #ffffff;
             padding: 10px;
             border-radius: 15px;
             display: flex;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            align-items: center;
-            width: 100%;
             justify-content: space-around;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 8px;
         }
-
-        .nav-item {
-            text-decoration: none;
-            color: var(--primary-color);
-            font-weight: 900;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            font-size: 13px;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 10px;
-            border: none;
-            background: none;
-        }
-
+        .nav-item { border: none; background: none; color: var(--primary-color); font-weight: 900; font-size: 14px; cursor: pointer; }
         .btn-return-toggle { 
-            background: #333; 
-            color: white; 
-            border: none; 
-            padding: 12px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-            justify-content: center;
+            background: #333; color: white; border: none; padding: 12px; border-radius: 12px; 
+            cursor: pointer; font-weight: bold; width: 100%; font-size: 15px;
         }
 
-        .container { 
-            width: 100%;
-            max-width: 650px; 
-            background: white; 
-            padding: 15px; 
-            border: 2px solid #000; 
-            position: relative;
-        }
-
+        /* الهيدر */
         .receipt-header {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
+            justify-content: space-between;
+            align-items: flex-start;
             border-bottom: 2px solid #000;
             padding-bottom: 15px;
-            margin-bottom: 20px;
-            gap: 15px;
+            margin-bottom: 15px;
         }
 
-        @media (min-width: 480px) {
-            .receipt-header {
-                display: grid;
-                grid-template-columns: 1.5fr 1fr 1.2fr;
-                text-align: inherit;
-                align-items: start;
-            }
-        }
+        .header-left { text-align: right; font-size: 13px; font-weight: bold; line-height: 1.6; }
+        .header-center { text-align: center; }
+        .header-right { text-align: left; }
 
-        .brand-section h1 { margin: 0; font-size: 35px; font-weight: 900; color: var(--primary-color); }
-        .shop-info { font-size: 12px; font-weight: bold; line-height: 1.5; }
-        .qr-section img { width: 80px; height: 80px; }
-        .invoice-info { font-size: 12px; font-weight: bold; width: 100%; }
+        .brand-name { color: var(--primary-color); font-size: 32px; font-weight: 900; margin: 0; line-height: 1; }
+        .shop-desc { font-size: 12px; font-weight: bold; margin-top: 4px; }
+        .qr-section img { width: 80px; height: 80px; border: 1px solid #eee; padding: 2px; }
 
-        .input-box { background: #fcfcfc; border: 1px dashed #bbb; padding: 12px; margin-bottom: 15px; border-radius: 10px; position: relative; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; text-align: center; font-size: 16px; }
-
+        /* مدخلات البحث */
+        .input-box { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 15px; margin-bottom: 15px; border-radius: 12px; position: relative; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; text-align: center; font-size: 15px; }
+        
         #searchResult { 
-            position: absolute; width: calc(100% - 24px); background: white; border: 1px solid #ddd; 
-            z-index: 1000; display: none; max-height: 200px; overflow-y: auto; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15); border-radius: 8px; top: 60px;
+            position: absolute; 
+            width: calc(100% - 30px); 
+            background: white; 
+            border: 1px solid #ddd; 
+            z-index: 1000; 
+            display: none; 
+            max-height: 200px; 
+            overflow-y: auto; 
+            border-radius: 8px;
+            top: 65px; /* Adjust based on input height */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        .search-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; text-align: right; display: flex; justify-content: space-between; }
+        .search-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 14px; text-align: right; }
+        .search-item:hover { background-color: #f1f5f9; }
 
+        /* الجدول */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #f8f9fa; border: 1px solid #000; padding: 8px; font-size: 13px; }
-        td { border: 1px solid #eee; padding: 8px; text-align: center; font-size: 13px; }
+        th { background: #f1f5f9; border: 1px solid #000; padding: 10px; font-weight: 900; font-size: 14px; }
+        td { border: 1px solid #000; padding: 10px; text-align: center; font-weight: bold; font-size: 14px; }
 
         .total-box { 
-            margin-top: 20px; padding: 15px; border-top: 2px solid #000; border-bottom: 2px solid #000;
-            font-size: 24px; color: #d9534f; font-weight: 900; text-align: center; 
+            margin: 20px 0; padding: 15px; border-top: 2px solid #000; border-bottom: 2px solid #000;
+            font-size: 24px; color: #b91c1c; font-weight: 900; text-align: center; 
         }
 
-        .google-search-box {
-            margin-top: 25px; border: 1px solid #dfe1e5; border-radius: 24px; padding: 8px 15px;
-            display: flex; align-items: center; justify-content: space-between; background: #fff;
+        .footer-msg { text-align: center; margin-top: 10px; font-weight: bold; font-size: 14px; }
+
+        .google-box {
+            margin-top: 20px; border: 1px solid #dfe1e5; border-radius: 25px; padding: 8px 15px;
+            display: flex; align-items: center; justify-content: space-between; font-size: 13px;
         }
 
-        .btn-save-print { 
-            background: #28a745; color: white; border: none; padding: 15px; width: 100%; 
-            border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px;
+        .btn-save { 
+            background: #16a34a; color: white; border: none; padding: 16px; width: 100%; 
+            border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px;
         }
 
         #customAlert {
             display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: #333; color: white; padding: 10px 20px; border-radius: 25px; z-index: 9999;
-        }
-
-        /* مؤشر حالة الاتصال */
-        #statusIndicator {
-            font-size: 10px; text-align: center; color: gray; margin-bottom: 5px;
+            background: #1e293b; color: white; padding: 10px 25px; border-radius: 30px; z-index: 9999;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
     </style>
 </head>
 <body id="bodyTag">
 
-    <div id="statusIndicator">جاري التحقق من الاتصال بالخادم...</div>
     <div id="customAlert"></div>
 
     <div class="nav-container no-print">
         <div class="nav-bar">
-            <button class="nav-item" onclick="location.reload()"><span>🏠</span><span>الرئيسية</span></button>
-            <button class="nav-item" onclick="window.location.href='products.html'"><span>📦</span><span>المخزن</span></button>
-            <button class="nav-item" onclick="window.location.href='history.html'"><span>📊</span><span>السجل</span></button>
+            <button class="nav-item" onclick="location.reload()">🏠 فاتورة جديدة</button>
+            <button class="nav-item" onclick="location.href='products.html'">📦 إدارة المخزن</button>
+            <button class="nav-item" onclick="location.href='history.html'">📊 السجل</button>
         </div>
-        <button id="modeBtn" class="btn-return-toggle" onclick="toggleReturn()">
-            🔄 وضع البيع الحالي
-        </button>
+        <button class="btn-return-toggle" id="modeBtn" onclick="toggleReturn()">🔄 وضع البيع الحالي</button>
     </div>
 
     <div class="container" id="invoice">
         <header class="receipt-header">
-            <div class="brand-section">
-                <h1>فـوشـيـا</h1>
-                <div class="shop-info">
-                    طرحة - خمار - زي شرعي<br>
-                    سمسطا - شارع بور سعيد<br>
-                    واتساب: 01287863711
+            <div class="header-left">
+                رقم الفاتورة: <span id="invNum" style="color:black">...</span><br>
+                التاريخ: <span id="invDate">...</span><br>
+                العميل: Cash Customer
+            </div>
+            <div class="header-center">
+                <div class="qr-section">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://wa.me/201287863711" alt="QR">
                 </div>
             </div>
-            <div class="qr-section">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://wa.me/201287863711" alt="QR">
-            </div>
-            <div class="invoice-info">
-                <p>رقم الفاتورة: <span id="invNum">0000</span></p>
-                <p>التاريخ: <span id="invDate">--/--/----</span></p>
-                <p>العميل: Cash Customer</p>
+            <div class="header-right">
+                <h1 class="brand-name">فـوشـيـا</h1>
+                <div class="shop-desc">
+                    طرحة - خمار - زي شرعي<br>
+                    سمسطا - ش بورسعيد<br>
+                    01287863711
+                </div>
             </div>
         </header>
 
         <div class="input-box no-print">
-            <input type="text" id="pSearch" placeholder="ابحث عن المنتج..." autocomplete="off">
+            <input type="text" id="pSearch" placeholder="🔍 ابحث عن اسم الصنف هنا..." autocomplete="off">
             <div id="searchResult"></div>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 8px;">
                 <input type="number" id="pPrice" placeholder="السعر">
                 <input type="number" id="pQty" value="1" placeholder="الكمية">
             </div>
-            <button onclick="addItem()" style="width:100%; padding:14px; background:var(--primary-color); color:white; border:none; border-radius:8px; cursor:pointer; font-weight: 900;">إضافة +</button>
+            <button onclick="addItem()" style="width:100%; padding:14px; background:var(--primary-color); color:white; border:none; border-radius:10px; font-weight:900; cursor:pointer;">إضافة للفاتورة +</button>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th>الصنف</th>
-                    <th>سعر</th>
-                    <th>كمية</th>
-                    <th>إجمالي</th>
-                    <th class="no-print">إجراء</th>
+                    <th style="width: 40%;">الصنف</th>
+                    <th>السعر</th>
+                    <th>الكمية</th>
+                    <th>الإجمالي</th>
+                    <th class="no-print">حذف</th>
                 </tr>
             </thead>
             <tbody id="invoiceBody"></tbody>
@@ -219,186 +192,194 @@
             الإجمالي: <span id="finalTotal">0</span> ج.م
         </div>
 
-        <div class="google-search-box">
-            <div class="google-logo">
+        <div class="footer-msg">
+            شكراً لزيارتكم -- شرفتمونا في فوشيا
+        </div>
+
+        <div class="google-box">
+            <div style="font-weight: bold;">
                 <span style="color: #4285F4;">G</span><span style="color: #EA4335;">o</span><span style="color: #FBBC05;">o</span><span style="color: #4285F4;">g</span><span style="color: #34A853;">l</span><span style="color: #EA4335;">e</span>
             </div>
-            <span>فوشيا سمسطا</span>
+            <span style="color: #444; font-weight: bold;">فوشيا سمسطا</span>
             <span>🔍</span>
         </div>
 
-        <button class="btn-save-print no-print" onclick="finish()">
+        <button class="btn-save no-print" onclick="finish()">
             ✅ حفظ وطباعة الفاتورة
         </button>
     </div>
 
-    <!-- استخدام الإصدار الأحدث من Firebase (Modular) بأسلوب التوافق -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getDatabase, ref, onValue, push, update, orderByKey, limitToLast, query, get } 
-        from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
             databaseURL: "https://fuchsia-web-e1ffe-default-rtdb.firebaseio.com",
-            projectId: "fuchsia-web-e1ffe"
+            projectId: "fuchsia-web-e1ffe",
+            appId: "1:1036149958008:web:673873d603b7fcbb29148d"
         };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        // تهيئة Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        let cloudProducts = {}, items = [], isReturn = false, selectedId = null;
 
-        // متغيرات الحالة
-        let cloudProducts = {};
-        let items = [];
-        let isReturn = false;
-        let selectedId = null;
-
-        // 1. فحص الاتصال
-        const statusEl = document.getElementById('statusIndicator');
-        const connectedRef = ref(db, ".info/connected");
-        onValue(connectedRef, (snap) => {
-            if (snap.val() === true) {
-                statusEl.innerText = "🟢 متصل بقاعدة البيانات";
-                statusEl.style.color = "green";
-            } else {
-                statusEl.innerText = "🔴 غير متصل - تحقق من الإنترنت";
-                statusEl.style.color = "red";
-            }
-        });
-
-        // 2. جلب التاريخ ورقم الفاتورة
         document.getElementById('invDate').innerText = new Date().toLocaleDateString('ar-EG');
-        
-        const historyRef = query(ref(db, "history"), orderByKey(), limitToLast(1));
-        onValue(historyRef, (snapshot) => {
+
+        // جلب رقم الفاتورة التالي
+        db.ref("history").orderByKey().limitToLast(1).on("value", s => {
             let nextNum = 1001;
-            if (snapshot.exists()) {
-                const data = snapshot.val();
+            if(s.exists()){
+                const data = s.val();
                 const lastKey = Object.keys(data)[0];
                 nextNum = parseInt(data[lastKey].invoiceNum) + 1;
             }
             document.getElementById('invNum').innerText = nextNum;
         });
 
-        // 3. مزامنة المنتجات للبحث
-        onValue(ref(db, "products"), (snapshot) => {
-            cloudProducts = snapshot.val() || {};
+        // مزامنة المنتجات
+        db.ref("products").on("value", s => { 
+            cloudProducts = s.val() || {}; 
         });
 
-        // 4. نظام البحث
         const searchInput = document.getElementById("pSearch");
         const resBox = document.getElementById("searchResult");
-        
-        searchInput.oninput = () => {
-            const val = searchInput.value.trim().toLowerCase();
-            resBox.innerHTML = "";
-            if (!val) { resBox.style.display = "none"; return; }
+        const priceInput = document.getElementById("pPrice");
+        const qtyInput = document.getElementById("pQty");
 
+        // إصلاح منطق البحث
+        searchInput.addEventListener('input', function() {
+            const val = this.value.trim().toLowerCase();
+            resBox.innerHTML = "";
+            
+            if(!val) { 
+                resBox.style.display = "none"; 
+                return; 
+            }
+
+            let found = false;
             Object.keys(cloudProducts).forEach(id => {
                 const p = cloudProducts[id];
-                if (p.name.toLowerCase().includes(val)) {
-                    const d = document.createElement("div");
+                if(p.name && p.name.toLowerCase().includes(val)) {
+                    found = true;
+                    let d = document.createElement("div");
                     d.className = "search-item";
-                    d.innerHTML = `<span>${p.name}</span> <small>(${p.stock})</small>`;
+                    d.innerHTML = `<span>${p.name}</span> <span style="color:blue; font-size:12px;">المخزن: ${p.stock || 0}</span>`;
                     d.onclick = () => {
                         selectedId = id;
                         searchInput.value = p.name;
-                        document.getElementById("pPrice").value = p.price;
+                        priceInput.value = p.price || 0;
                         resBox.style.display = "none";
-                        document.getElementById("pQty").focus();
+                        qtyInput.focus();
                     };
                     resBox.appendChild(d);
                 }
             });
-            resBox.style.display = resBox.innerHTML ? "block" : "none";
-        };
 
-        // 5. وظائف الفاتورة
+            resBox.style.display = found ? "block" : "none";
+        });
+
+        // إغلاق قائمة البحث عند النقر خارجها
+        document.addEventListener('click', function(e) {
+            if (e.target !== searchInput) {
+                resBox.style.display = "none";
+            }
+        });
+
+        function showNotice(msg) {
+            const a = document.getElementById('customAlert');
+            a.innerText = msg; 
+            a.style.display = 'block';
+            setTimeout(() => a.style.display = 'none', 3000);
+        }
+
         window.addItem = () => {
-            const name = searchInput.value;
-            const price = parseFloat(document.getElementById("pPrice").value);
-            const qty = parseInt(document.getElementById("pQty").value);
-
-            if (!name || isNaN(price) || qty <= 0) {
-                showAlert("بيانات غير مكتملة");
-                return;
+            const name = searchInput.value.trim();
+            const price = parseFloat(priceInput.value);
+            const qty = parseInt(qtyInput.value);
+            
+            if(!name || isNaN(price) || isNaN(qty) || qty <= 0) {
+                return showNotice("يرجى إكمال بيانات الصنف بشكل صحيح");
             }
 
-            items.push({ id: selectedId, name, price, qty, total: price * qty });
+            items.push({ 
+                id: selectedId, 
+                name, 
+                price, 
+                qty, 
+                total: price * qty 
+            });
+            
             render();
             
-            // تنظيف المدخلات
+            // إعادة ضبط الحقول
             searchInput.value = ""; 
-            document.getElementById("pPrice").value = ""; 
-            document.getElementById("pQty").value = "1";
+            priceInput.value = ""; 
+            qtyInput.value = "1"; 
             selectedId = null;
+            searchInput.focus();
         };
 
         function render() {
-            const body = document.getElementById("invoiceBody");
-            let total = 0;
-            body.innerHTML = "";
-            items.forEach((item, index) => {
-                total += item.total;
-                body.innerHTML += `
+            const b = document.getElementById('invoiceBody');
+            let t = 0; 
+            b.innerHTML = "";
+            items.forEach((it, i) => {
+                t += it.total;
+                b.innerHTML += `
                     <tr>
-                        <td>${item.name}</td>
-                        <td>${item.price}</td>
-                        <td>${item.qty}</td>
-                        <td>${item.total}</td>
-                        <td class="no-print"><button onclick="removeItem(${index})">❌</button></td>
-                    </tr>
-                `;
+                        <td>${it.name}</td>
+                        <td>${it.price}</td>
+                        <td>${it.qty}</td>
+                        <td>${it.total}</td>
+                        <td class="no-print">
+                            <button onclick="items.splice(${i},1);render()" style="border:none; background:none; cursor:pointer; font-size:16px;">❌</button>
+                        </td>
+                    </tr>`;
             });
-            document.getElementById("finalTotal").innerText = total;
+            document.getElementById('finalTotal').innerText = t;
         }
-
-        window.removeItem = (i) => { items.splice(i, 1); render(); };
 
         window.toggleReturn = () => {
             isReturn = !isReturn;
             const btn = document.getElementById("modeBtn");
-            btn.innerText = isReturn ? "🔄 وضع المرتجع (إرجاع)" : "🔄 وضع البيع الحالي";
+            btn.innerText = isReturn ? "🔄 وضع المرتجع (خصم)" : "🔄 وضع البيع الحالي";
             btn.style.background = isReturn ? "var(--return-color)" : "#333";
-            document.getElementById("bodyTag").style.backgroundColor = isReturn ? "#fff0f0" : "#e2e8f0";
+            document.getElementById("bodyTag").style.backgroundColor = isReturn ? "#fff0f0" : "#f1f5f9";
         };
 
         window.finish = async () => {
-            if (items.length === 0) return showAlert("الفاتورة فارغة");
+            if(items.length === 0) return showNotice("الفاتورة فارغة");
             
+           
             try {
-                // تحديث المخزون
-                for (let item of items) {
-                    if (item.id && cloudProducts[item.id]) {
-                        let currentStock = parseInt(cloudProducts[item.id].stock);
+                // تحديث المخزن لكل صنف
+                for(let item of items) {
+                    if(item.id && cloudProducts[item.id]) {
+                        let currentStock = cloudProducts[item.id].stock || 0;
                         let newStock = isReturn ? (currentStock + item.qty) : (currentStock - item.qty);
-                        await update(ref(db, `products/${item.id}`), { stock: newStock });
+                        await db.ref("products/" + item.id).update({ stock: newStock });
                     }
                 }
 
+                const totalVal = items.reduce((a, b) => a + b.total, 0);
+                
                 // حفظ في السجل
-                const total = items.reduce((a, b) => a + b.total, 0);
-                await push(ref(db, "history"), {
+                await db.ref("history").push({
                     invoiceNum: document.getElementById('invNum').innerText,
                     date: new Date().toLocaleDateString('en-CA'),
-                    total: isReturn ? -total : total,
+                    total: isReturn ? -totalVal : totalVal,
                     type: isReturn ? "return" : "sale",
                     items: items
                 });
 
-                showAlert("تم الحفظ! جاري الطباعة...");
-                setTimeout(() => { window.print(); location.reload(); }, 1000);
-            } catch (err) {
-                showAlert("خطأ في الحفظ: " + err.message);
+                window.print();
+               
+            } catch(e) { 
+                console.error(e);
+                showNotice("حدث خطأ أثناء الحفظ!"); 
             }
         };
-
-        function showAlert(m) {
-            const a = document.getElementById("customAlert");
-            a.innerText = m; a.style.display = "block";
-            setTimeout(() => a.style.display = "none", 3000);
-        }
     </script>
 </body>
 </html>
