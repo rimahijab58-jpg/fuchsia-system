@@ -12,11 +12,20 @@
             --edit-color: #f0ad4e;
             --bg-gray: #f9f9f9;
             --accent-blue: #5bc0de;
+            --nav-bg: #ffffff;
         }
 
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
         
-        body { background-color: #e2e8f0; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        body { 
+            background-color: #e2e8f0; 
+            margin: 0; 
+            padding: 15px 10px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh;
+        }
 
         @media print {
             .no-print { display: none !important; }
@@ -24,34 +33,92 @@
             .container { border: 1px solid #000 !important; box-shadow: none !important; width: 100% !important; margin: 0 !important; }
         }
 
-        /* شريط التنقل الجديد */
+        /* شريط التنقل العلوي - تم تقريب المسافة */
+        .nav-container {
+            width: 100%;
+            max-width: 650px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
         .nav-bar {
-            background: #eee;
-            padding: 10px 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
+            background: var(--nav-bg);
+            padding: 10px 25px;
+            border-radius: 15px;
             display: flex;
             gap: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
         }
+
         .nav-item {
             text-decoration: none;
             color: #4b0082;
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: 18px;
+            gap: 8px;
+            font-size: 16px;
             cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            padding: 5px 12px;
+            border-radius: 8px;
         }
-        .nav-item:hover { opacity: 0.7; }
+        .nav-item:hover { background: #f8f9fa; color: #000; }
+        .nav-item span { font-size: 20px; }
 
-        .no-print-area { margin-bottom: 15px; width: 100%; max-width: 650px; display: flex; gap: 10px; justify-content: center; }
-        .btn-return-toggle { background: #333; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-return-toggle { 
+            background: #1a1a1a; 
+            color: white; 
+            border: none; 
+            padding: 8px 25px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
 
         .container { 
-            width: 650px; background: white; padding: 25px; border: 2px solid #000; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            transition: all 0.3s ease; position: relative;
+            width: 650px; 
+            background: white; 
+            padding: 30px; 
+            border: 2px solid #000; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+            position: relative;
+            border-radius: 4px;
+        }
+
+        /* تنبيه مخصص مدمج */
+        #customAlert {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            z-index: 10000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            font-weight: bold;
+            animation: fadeInOut 3s forwards;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            15% { opacity: 1; transform: translate(-50%, 0); }
+            85% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
         }
 
         /* رأس الفاتورة */
@@ -75,68 +142,59 @@
         .invoice-info p { margin: 2px 0; }
 
         /* مدخلات البيانات */
-        .input-box { background: #fdfdfd; border: 1px dashed #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; text-align: right; }
-        .search-container { position: relative; margin-bottom: 10px; }
-        label { font-weight: bold; display: block; margin-bottom: 5px; }
-        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; margin-bottom: 10px; text-align: center; }
-        input:focus { border-color: var(--accent-blue); outline: none; }
+        .input-box { background: #fcfcfc; border: 1px dashed #bbb; padding: 20px; margin-bottom: 20px; border-radius: 12px; text-align: right; }
+        .search-container { position: relative; margin-bottom: 12px; }
+        label { font-weight: bold; display: block; margin-bottom: 6px; font-size: 14px; color: #444; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 12px; text-align: center; }
 
         #searchResult { 
             position: absolute; width: 100%; background: white; border: 1px solid #ddd; 
-            z-index: 1000; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 1000; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-radius: 8px;
         }
-        .search-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; text-align: right; display: flex; justify-content: space-between; }
-        .search-item:hover { background: #f0f0f0; }
+        .search-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; text-align: right; display: flex; justify-content: space-between; }
+        .search-item:hover { background: #f8f9fa; }
 
         /* الجدول */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #f4f4f4; border: 1px solid #000; padding: 10px; font-weight: bold; font-size: 14px; }
-        td { border: 1px solid #eee; padding: 10px; text-align: center; font-size: 14px; vertical-align: middle; }
+        th { background: #f8f9fa; border: 1px solid #000; padding: 12px; font-weight: bold; font-size: 14px; }
+        td { border: 1px solid #eee; padding: 12px; text-align: center; font-size: 15px; }
 
         .total-box { 
-            margin-top: 20px; padding: 15px; border-top: 2px solid #000; border-bottom: 2px solid #000;
-            font-size: 30px; color: red; font-weight: bold; text-align: center; 
+            margin-top: 25px; padding: 20px; border-top: 2px solid #000; border-bottom: 2px solid #000;
+            font-size: 32px; color: #d9534f; font-weight: bold; text-align: center; 
         }
 
-        /* أزرار الإجراءات الملونة */
-        .action-btn { border: none; padding: 6px; cursor: pointer; border-radius: 6px; font-size: 16px; margin: 0 2px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; }
+        .action-btn { border: none; padding: 6px; cursor: pointer; border-radius: 8px; font-size: 16px; margin: 0 3px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; }
         .btn-edit-row { background: #ffc107; color: #000; }
         .btn-del-row { background: #d9534f; color: white; }
 
-        .footer-note { margin-top: 15px; font-size: 15px; font-weight: bold; text-align: center; }
-
-        /* شريط جوجل السفلي */
-        .google-bar {
-            margin-top: 20px; display: flex; align-items: center; justify-content: center;
-            border: 1px solid #ddd; border-radius: 30px; padding: 8px 20px; background: #fff; gap: 10px;
-        }
-        .google-bar img { width: 20px; }
+        .footer-note { margin-top: 20px; font-size: 16px; font-weight: bold; text-align: center; }
 
         .btn-save-print { 
-            background: #5cb85c; color: white; border: none; padding: 15px; width: 100%; 
-            border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 20px;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: #28a745; color: white; border: none; padding: 18px; width: 100%; 
+            border-radius: 12px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 25px;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
         }
 
-        /* وضع المرتجع */
-        .return-mode .container { border-color: var(--return-color); background-color: #fffafa; }
-        #returnBadge { 
-            display: none; background: var(--return-color); color: white; padding: 8px; 
-            font-weight: bold; font-size: 20px; margin-bottom: 15px; border-radius: 4px; text-align: center;
-        }
+        .return-mode .container { border-color: var(--return-color); background-color: #fffafa; border-width: 3px; }
+        #returnBadge { display: none; background: var(--return-color); color: white; padding: 10px; font-weight: bold; font-size: 22px; margin-bottom: 20px; border-radius: 6px; text-align: center; }
     </style>
 </head>
 <body id="bodyTag">
 
-    <!-- شريط التنقل العلوي -->
-    <div class="nav-bar no-print">
-        <a href="#" class="nav-item" onclick="location.reload()">🏠 فاتورة</a>
-        <div class="nav-item">📦 مخزن</div>
-        <div class="nav-item">📄 سجل</div>
-    </div>
+    <div id="customAlert">جاري التحميل...</div>
 
-    <div class="no-print-area no-print">
-        <button class="btn-return-toggle" onclick="toggleReturn()">🔄 وضع المرتجع</button>
+    <div class="nav-container no-print">
+        <div class="nav-bar">
+            <!-- روابط الأقسام الأصلية كما كانت -->
+            <button class="nav-item" onclick="location.reload()"><span>🏠</span> فاتورة</button>
+            <button class="nav-item" onclick="location.href='products.html'"><span>📦</span> مخزن</button>
+            <button class="nav-item" onclick="location.href='charts.html'"><span>📊</span> سجل</button>
+        </div>
+        <button class="btn-return-toggle" onclick="toggleReturn()">
+            🔄 تفعيل وضع المرتجع
+        </button>
     </div>
 
     <div class="container" id="invoice">
@@ -163,24 +221,23 @@
             </div>
         </header>
 
-        <!-- منطقة المدخلات -->
         <div class="input-box no-print">
             <div class="search-container">
-                <label>ابحث عن المنتج:</label>
-                <input type="text" id="pSearch" placeholder="اكتب اسم المنتج هنا..." autocomplete="off">
+                <label>البحث عن منتج بالاسم:</label>
+                <input type="text" id="pSearch" placeholder="اكتب اسم الصنف هنا..." autocomplete="off">
                 <div id="searchResult"></div>
             </div>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 15px;">
                 <div style="flex:1">
                     <label>السعر:</label>
-                    <input type="number" id="pPrice" placeholder="السعر">
+                    <input type="number" id="pPrice" placeholder="0.00">
                 </div>
                 <div style="flex:1">
                     <label>الكمية:</label>
-                    <input type="number" id="pQty" value="1">
+                    <input type="number" id="pQty" value="1" min="1">
                 </div>
             </div>
-            <button class="btn-nav" id="addBtn" style="width:100%; background: var(--accent-blue); color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="addItem()">إضافة للفاتورة +</button>
+            <button id="addBtn" style="width:100%; background: #4b0082; color:white; border:none; padding:14px; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="addItem()">إضافة الصنف +</button>
         </div>
 
         <table>
@@ -200,22 +257,19 @@
             الإجمالي النهائي: <span id="finalTotal">0</span> ج.م
         </div>
 
-        <div class="footer-note">شكراً لزيارتكم -- شرفتمونا</div>
-
-        <div class="google-bar">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
-            <strong>فوشيا سمسطا</strong>
-        </div>
+        <div class="footer-note">شكراً لزيارتكم فوشيا -- شرفتمونا دائماً</div>
 
         <button class="btn-save-print no-print" onclick="finish()">
-            <span>✅</span> حفظ وطباعة الفاتورة
+            <span>💾</span> حفظ وطباعة الفاتورة
         </button>
     </div>
 
+    <!-- مكتبات Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
+        // تكوين Firebase الأصلي
         const firebaseConfig = {
             apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
             databaseURL: "https://fuchsia-web-e1ffe-default-rtdb.firebaseio.com",
@@ -227,32 +281,45 @@
 
         let cloudProducts = {}, items = [], selectedId = null, isReturn = false;
         
+        // إعداد التاريخ ورقم الفاتورة العشوائي
         document.getElementById('invDate').innerText = new Date().toLocaleDateString('en-CA');
-        document.getElementById('invNum').innerText = Math.floor(Math.random() * 10000);
+        document.getElementById('invNum').innerText = Math.floor(1000 + Math.random() * 9000);
 
-        db.ref("products").on("value", s => cloudProducts = s.val() || {});
+        // التزامن مع المخزن السحابي
+        db.ref("products").on("value", s => { 
+            cloudProducts = s.val() || {}; 
+        });
 
         const pSearch = document.getElementById("pSearch");
         const resBox = document.getElementById("searchResult");
         const priceInput = document.getElementById("pPrice");
         const qtyInput = document.getElementById("pQty");
 
+        function showNotice(msg) {
+            const alertBox = document.getElementById('customAlert');
+            alertBox.innerText = msg;
+            alertBox.style.display = 'block';
+            setTimeout(() => { alertBox.style.display = 'none'; }, 3000);
+        }
+
+        // منطق البحث السحابي
         pSearch.oninput = function() {
-            const val = this.value.toLowerCase();
+            const val = this.value.trim().toLowerCase();
             resBox.innerHTML = "";
             if(!val) { resBox.style.display="none"; return; }
+            
             Object.keys(cloudProducts).forEach(id => {
                 const p = cloudProducts[id];
                 if(p.name.toLowerCase().includes(val)) {
-                    let d = document.createElement("div"); d.className="search-item";
-                    d.innerHTML = `<span>${p.name}</span> <b>(مخزن: ${p.stock})</b>`;
+                    let d = document.createElement("div"); 
+                    d.className="search-item";
+                    d.innerHTML = `<span>${p.name}</span> <b style="color: #888;">(${p.stock} قطعة)</b>`;
                     d.onclick = () => {
                         selectedId = id;
                         pSearch.value = p.name;
                         priceInput.value = p.price;
                         resBox.style.display = "none";
                         qtyInput.focus();
-                        qtyInput.select();
                     };
                     resBox.appendChild(d);
                 }
@@ -261,10 +328,13 @@
         };
 
         function addItem() {
-            const n = pSearch.value;
+            const n = pSearch.value.trim();
             const p = parseFloat(priceInput.value);
             const q = parseInt(qtyInput.value);
-            if(!n || isNaN(p)) return;
+            if(!n || isNaN(p) || q <= 0) {
+                showNotice("تأكد من إدخال البيانات بشكل صحيح!");
+                return;
+            }
 
             items.push({ id: selectedId, name: n, price: p, qty: q, total: p * q });
             renderTable();
@@ -278,16 +348,16 @@
                 t += item.total;
                 b.innerHTML += `<tr>
                     <td>${item.name}</td>
-                    <td>${item.price}</td>
+                    <td>${item.price.toFixed(2)}</td>
                     <td>${item.qty}</td>
-                    <td>${item.total}</td>
+                    <td>${item.total.toFixed(2)}</td>
                     <td class="no-print">
                         <button class="action-btn btn-edit-row" onclick="editItem(${index})">✏️</button>
                         <button class="action-btn btn-del-row" onclick="deleteItem(${index})">🗑️</button>
                     </td>
                 </tr>`;
             });
-            document.getElementById("finalTotal").innerText = t;
+            document.getElementById("finalTotal").innerText = t.toLocaleString('ar-EG');
         }
 
         function editItem(index) {
@@ -296,10 +366,8 @@
             pSearch.value = itm.name;
             priceInput.value = itm.price;
             qtyInput.value = itm.qty;
-            
             items.splice(index, 1);
             renderTable();
-            pSearch.focus();
         }
 
         function deleteItem(index) {
@@ -316,25 +384,43 @@
             isReturn = !isReturn;
             document.getElementById('bodyTag').classList.toggle('return-mode');
             document.getElementById('returnBadge').style.display = isReturn ? 'block' : 'none';
+            showNotice(isReturn ? "تم تفعيل وضع المرتجع" : "تمت العودة للبيع");
         }
 
         async function finish() {
-            if(items.length === 0) return;
+            if(items.length === 0) {
+                showNotice("الفاتورة فارغة!");
+                return;
+            }
+
+            showNotice("جاري حفظ البيانات سحابياً...");
+            
+            // تحديث المخزن في Firebase
             for(let i of items) {
                 if(i.id && cloudProducts[i.id]) {
-                    let s = cloudProducts[i.id].stock;
-                    await db.ref("products/"+i.id).update({stock: isReturn ? s + i.qty : s - i.qty});
+                    let currentStock = cloudProducts[i.id].stock;
+                    // إذا بيع نطرح، إذا مرتجع نجمع
+                    let newStock = isReturn ? currentStock + i.qty : currentStock - i.qty;
+                    await db.ref("products/"+i.id).update({ stock: newStock });
                 }
             }
-            let total = parseFloat(document.getElementById("finalTotal").innerText);
+
+            let totalVal = parseFloat(document.getElementById("finalTotal").innerText.replace(/[^\d.]/g, ''));
+            
+            // إضافة الفاتورة للسجل في Firebase
             await db.ref("history").push({
-                date: new Date().toLocaleDateString('en-CA'),
-                total: isReturn ? -total : total,
+                invoiceNum: document.getElementById('invNum').innerText,
+                date: new Date().toLocaleString('ar-EG'),
+                total: isReturn ? -totalVal : totalVal,
                 type: isReturn ? "return" : "sale",
                 items: items
             });
-            window.print();
-            location.reload();
+
+            showNotice("تم الحفظ بنجاح! جاري الطباعة...");
+            setTimeout(() => {
+                window.print();
+                location.reload();
+            }, 1000);
         }
     </script>
 </body>
