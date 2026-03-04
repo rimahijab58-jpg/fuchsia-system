@@ -34,7 +34,7 @@
 
         .archive-status { background: #ffc107; color: #000; padding: 5px 15px; border-radius: 15px; display: inline-block; margin-bottom: 10px; font-size: 12px; font-weight: bold; display: none; }
 
-        /* Print Settings for Mobile and Web */
+        /* تعديلات الطباعة */
         @media print {
             @page { size: auto; margin: 10mm; }
             html, body { 
@@ -57,7 +57,6 @@
                 padding: 10px !important; 
                 display: block !important; 
                 visibility: visible !important;
-                position: static !important;
             }
             .table-responsive { 
                 overflow: visible !important; 
@@ -69,19 +68,16 @@
                 width: 100% !important; 
                 border: 1px solid #000 !important; 
                 visibility: visible !important;
-                table-layout: auto !important;
             }
             th, td { 
                 border: 1px solid #ccc !important; 
                 color: #000 !important; 
                 background: #fff !important; 
                 visibility: visible !important;
-                padding: 8px !important;
             }
             #tableTitle {
                 display: block !important;
                 visibility: visible !important;
-                margin-top: 20px !important;
             }
         }
 
@@ -97,8 +93,8 @@
     <div class="nav">
         <a href="index.html">🏠 الفاتورة</a>
         <a href="products.html">📦 المخزن</a>
-        <button onclick="smartPrint()" style="background:#28a745;">🖨️ طباعة</button>
-        <button id="archiveBtn" onclick="archiveCurrentHistory()" style="background:#dc3545;">🧹 تصفير السجل</button>
+        <button onclick="smartPrint()" style="background:#28a745;">🖨️ طباعة وتصفير</button>
+        <button id="archiveBtn" onclick="archiveCurrentHistory()" style="background:#dc3545;">🧹 تصفير يدوي</button>
         <button id="toggleViewBtn" onclick="toggleArchiveView()" style="background:#6c757d;">📂 عرض الأرشيف</button>
     </div>
 
@@ -172,23 +168,27 @@
         let allProducts = {};
         let isArchiveView = false;
 
-        // دالة الطباعة الذكية
+        // دالة الطباعة الذكية التي تتبعها عملية مسح
         function smartPrint() {
             window.scrollTo(0,0);
             
-            // مراقبة حدث ما بعد الطباعة
-            const afterPrintHandler = function() {
-                window.removeEventListener('afterprint', afterPrintHandler);
-                // سؤال المستخدم إذا كان يريد التصفير بعد انتهاء المعاينة
+            // تعريف المستمع للعودة من الطباعة
+            const handleReturnFromPrint = function() {
+                // إزالة المستمع فوراً لكي لا يتكرر
+                window.removeEventListener('afterprint', handleReturnFromPrint);
+                
+                // مهلة بسيطة لضمان استقرار الواجهة بعد إغلاق نافذة الطباعة
                 setTimeout(() => {
-                    if (confirm("هل تريد تصفير السجل الحالي ونقله للأرشيف الآن؟")) {
-                        archiveCurrentHistory(true); // true تعني تجاوز التأكيد مرة أخرى
+                    if (confirm("تم الانتهاء من المعاينة. هل تريد مسح السجل الحالي ونقله للأرشيف الآن؟")) {
+                        archiveCurrentHistory(true); // true تعني تجاوز رسالة التأكيد الثانية
                     }
-                }, 500);
+                }, 800);
             };
 
-            window.addEventListener('afterprint', afterPrintHandler);
+            // إضافة المستمع قبل استدعاء نافذة الطباعة
+            window.addEventListener('afterprint', handleReturnFromPrint);
             
+            // فتح نافذة الطباعة
             setTimeout(() => { 
                 window.print(); 
             }, 500);
@@ -213,7 +213,12 @@
             
             const historyData = snapshot.val();
             const archiveRef = db.ref("archived_history").push();
-            await archiveRef.set({ archivedAt: new Date().toLocaleString(), data: historyData });
+            await archiveRef.set({ 
+                archivedAt: new Date().toLocaleString(), 
+                data: historyData 
+            });
+            
+            // مسح السجل الحالي من داتابيز
             await db.ref("history").remove();
             alert("تم التصفير بنجاح ونقل البيانات للأرشيف.");
         }
