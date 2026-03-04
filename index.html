@@ -21,15 +21,17 @@
             display: flex; 
             flex-direction: column; 
             align-items: center; 
+            transition: background-color 0.3s ease;
         }
 
         @media print {
             .no-print { display: none !important; }
-            body { background: white; padding: 0; }
-            .container { border: 1px solid #000 !important; box-shadow: none !important; width: 100% !important; margin: 0 !important; padding: 10px !important; }
+            body { background: white !important; padding: 0; }
+            .container { border: none !important; box-shadow: none !important; width: 100% !important; margin: 0 !important; padding: 10px !important; }
+            .total-box { color: black !important; border-color: black !important; }
         }
 
-        /* تحسين الجزء العلوي (Nav) */
+        /* Nav & Brand Styles */
         .nav-container {
             width: 100%;
             max-width: 650px;
@@ -68,8 +70,7 @@
             transition: 0.3s;
         }
         .nav-item:hover { background: #f8f0ff; }
-        .nav-item i { font-size: 18px; }
-
+        
         .btn-return-toggle { 
             background: #333; 
             color: white; 
@@ -84,7 +85,9 @@
             width: 100%;
             justify-content: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: 0.3s;
         }
+        .btn-return-toggle.active { background: var(--return-color); }
 
         .container { 
             width: 100%;
@@ -95,20 +98,6 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
             position: relative;
         }
-
-        .google-search-box {
-            margin-top: 25px;
-            border: 1px solid #dfe1e5;
-            border-radius: 24px;
-            padding: 8px 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #fff;
-            box-shadow: 0 1px 6px rgba(32,33,36,0.28);
-        }
-        .google-search-box span { color: #5f6368; font-size: 12px; }
-        .google-search-box .google-logo { font-weight: bold; font-size: 16px; }
 
         .receipt-header {
             display: flex;
@@ -130,14 +119,16 @@
             }
         }
 
-        .brand-section h1 { margin: 0; font-size: 35px; font-weight: 900; }
+        .brand-section h1 { margin: 0; font-size: 35px; font-weight: 900; color: var(--primary-color); }
         .shop-info { font-size: 12px; font-weight: bold; line-height: 1.5; }
         .qr-section img { width: 80px; height: 80px; }
         .invoice-info { font-size: 12px; font-weight: bold; width: 100%; }
         .invoice-info p { margin: 5px 0; }
 
+        /* Input Styles */
         .input-box { background: #fcfcfc; border: 1px dashed #bbb; padding: 12px; margin-bottom: 15px; border-radius: 10px; position: relative; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; text-align: center; font-size: 16px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; text-align: center; font-size: 16px; transition: border 0.3s; }
+        input:focus { border-color: var(--primary-color); outline: none; }
 
         #searchResult { 
             position: absolute; width: calc(100% - 24px); background: white; border: 1px solid #ddd; 
@@ -145,7 +136,9 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.15); border-radius: 8px; top: 60px;
         }
         .search-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; text-align: right; display: flex; justify-content: space-between; font-size: 14px; }
+        .search-item:hover { background: #f9f9f9; }
 
+        /* Table & Total Styles */
         .table-responsive { width: 100%; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 450px; }
         th { background: #f8f9fa; border: 1px solid #000; padding: 8px; font-size: 13px; }
@@ -153,19 +146,30 @@
 
         .total-box { 
             margin-top: 20px; padding: 15px; border-top: 2px solid #000; border-bottom: 2px solid #000;
-            font-size: 22px; color: #d9534f; font-weight: bold; text-align: center; 
+            font-size: 24px; color: #d9534f; font-weight: 900; text-align: center; 
         }
+
+        .google-search-box {
+            margin-top: 25px; border: 1px solid #dfe1e5; border-radius: 24px; padding: 8px 15px;
+            display: flex; align-items: center; justify-content: space-between; background: #fff;
+            box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+        }
+        .google-search-box span { color: #5f6368; font-size: 12px; }
+        .google-search-box .google-logo { font-weight: bold; font-size: 16px; }
 
         .btn-save-print { 
             background: #28a745; color: white; border: none; padding: 15px; width: 100%; 
             border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px;
+            transition: 0.3s;
         }
+        .btn-save-print:hover { background: #218838; }
 
-        .btn-action { background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px; }
+        .btn-action { background: none; border: none; cursor: pointer; font-size: 16px; padding: 5px; }
 
         #customAlert {
-            display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
-            background: #333; color: white; padding: 8px 15px; border-radius: 20px; z-index: 9999; font-size: 14px;
+            display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #333; color: white; padding: 10px 20px; border-radius: 25px; z-index: 9999; font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
     </style>
 </head>
@@ -176,11 +180,11 @@
     <div class="nav-container no-print">
         <div class="nav-bar">
             <button class="nav-item" onclick="location.reload()"><span>🏠</span><span>الرئيسية</span></button>
-            <button class="nav-item" onclick="location.href='products.html'"><span>📦</span><span>المخزن</span></button>
-            <button class="nav-item" onclick="location.href='history.html'"><span>📊</span><span>السجل</span></button>
+            <button class="nav-item" onclick="window.location.href='products.html'"><span>📦</span><span>المخزن</span></button>
+            <button class="nav-item" onclick="window.location.href='history.html'"><span>📊</span><span>السجل</span></button>
         </div>
-        <button class="btn-return-toggle" onclick="toggleReturn()">
-            🔄 تبديل الوضع (بيع / مرتجع)
+        <button id="returnToggleBtn" class="btn-return-toggle" onclick="toggleReturn()">
+            🔄 وضع البيع الحالي
         </button>
     </div>
 
@@ -195,7 +199,7 @@
                 </div>
             </div>
             <div class="qr-section">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chat.whatsapp.com/EnzS1EbY5BfAl6rQsHqiPK?mode=gi_t" alt="QR">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/201287863711" alt="QR">
             </div>
             <div class="invoice-info">
                 <p>رقم الفاتورة: <span id="invNum">...</span></p>
@@ -211,7 +215,7 @@
                 <input type="number" id="pPrice" placeholder="السعر">
                 <input type="number" id="pQty" value="1" placeholder="الكمية">
             </div>
-            <button onclick="addItem()" style="width:100%; padding:12px; background:#4b0082; color:white; border:none; border-radius:8px; cursor:pointer; font-weight: bold;">إضافة +</button>
+            <button onclick="addItem()" style="width:100%; padding:14px; background:var(--primary-color); color:white; border:none; border-radius:8px; cursor:pointer; font-weight: 900; font-size: 16px;">إضافة للجدول +</button>
         </div>
 
         <div class="table-responsive">
@@ -234,7 +238,7 @@
         </div>
 
         <div style="text-align: center; margin-top: 15px; font-weight: bold; font-size: 14px;">
-            شكراً لزيارتكم -- شرفتونا
+            شكراً لزيارتكم -- شرفتونا في فوشيا
         </div>
 
         <div class="google-search-box">
@@ -246,7 +250,7 @@
         </div>
 
         <button class="btn-save-print no-print" onclick="finish()">
-            ✅ حفظ وطباعة الفاتورة
+            ✅ حفظ الفاتورة وطباعة
         </button>
     </div>
 
@@ -254,6 +258,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
+        // تكوين Firebase مع تصحيح روابط البيانات
         const firebaseConfig = {
             apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
             databaseURL: "https://fuchsia-web-e1ffe-default-rtdb.firebaseio.com",
@@ -265,8 +270,10 @@
 
         let cloudProducts = {}, items = [], isReturn = false, selectedId = null;
 
-        document.getElementById('invDate').innerText = new Date().toLocaleDateString('en-CA');
+        // تعيين التاريخ تلقائياً
+        document.getElementById('invDate').innerText = new Date().toLocaleDateString('ar-EG');
 
+        // جلب رقم الفاتورة التالي
         db.ref("history").orderByKey().limitToLast(1).once("value", s => {
             let nextNum = 1001;
             if(s.exists()){
@@ -277,6 +284,7 @@
             document.getElementById('invNum').innerText = nextNum;
         });
 
+        // مزامنة المخزن
         db.ref("products").on("value", s => { cloudProducts = s.val() || {}; });
 
         const pSearchInput = document.getElementById("pSearch");
@@ -284,6 +292,7 @@
         const priceInput = document.getElementById("pPrice");
         const qtyInput = document.getElementById("pQty");
 
+        // نظام البحث المطور
         pSearchInput.oninput = function() {
             const val = this.value.trim().toLowerCase();
             resBox.innerHTML = "";
@@ -294,7 +303,7 @@
                 if(p.name.toLowerCase().includes(val)) {
                     let d = document.createElement("div");
                     d.className="search-item";
-                    d.innerHTML = `<span>${p.name}</span> <b style="color: #888;">(${p.stock})</b>`;
+                    d.innerHTML = `<span>${p.name}</span> <b style="color: ${p.stock <= 0 ? 'red':'#888'};">(${p.stock})</b>`;
                     d.onclick = () => {
                         selectedId = id;
                         pSearchInput.value = p.name;
@@ -311,7 +320,7 @@
         function showNotice(msg) {
             const a = document.getElementById('customAlert');
             a.innerText = msg; a.style.display = 'block';
-            setTimeout(() => a.style.display = 'none', 2000);
+            setTimeout(() => a.style.display = 'none', 2500);
         }
 
         function addItem() {
@@ -320,32 +329,22 @@
             const qty = parseInt(qtyInput.value);
 
             if(!name || isNaN(price) || isNaN(qty) || qty <= 0) {
-                showNotice("أكمل البيانات");
+                showNotice("تأكد من اختيار المنتج والسعر والكمية");
                 return;
             }
 
-            items.push({ id: selectedId, name: name, price: price, qty: qty, total: price * qty });
+            items.push({ 
+                id: selectedId, 
+                name: name, 
+                price: price, 
+                qty: qty, 
+                total: price * qty 
+            });
+            
             render();
+            // Reset fields
             pSearchInput.value = ""; priceInput.value = ""; qtyInput.value = "1"; selectedId = null;
             pSearchInput.focus();
-        }
-
-        function editItem(index) {
-            const it = items[index];
-            const newQty = prompt("تعديل الكمية:", it.qty);
-            if (newQty === null) return;
-            const newPrice = prompt("تعديل السعر:", it.price);
-            if (newPrice === null) return;
-
-            const q = parseInt(newQty);
-            const p = parseFloat(newPrice);
-
-            if (!isNaN(q) && !isNaN(p) && q > 0) {
-                items[index].qty = q;
-                items[index].price = p;
-                items[index].total = q * p;
-                render();
-            }
         }
 
         function render() {
@@ -362,7 +361,7 @@
                     <td class="no-print">
                         <div style="display:flex; gap:5px; justify-content:center;">
                             <button class="btn-action" onclick="editItem(${i})">✏️</button>
-                            <button class="btn-action" onclick="items.splice(${i},1);render()">❌</button>
+                            <button class="btn-action" onclick="removeItem(${i})">❌</button>
                         </div>
                     </td>
                 </tr>`;
@@ -370,23 +369,59 @@
             document.getElementById('finalTotal').innerText = t.toLocaleString('ar-EG');
         }
 
+        function editItem(i) {
+            const newQty = prompt("تعديل الكمية:", items[i].qty);
+            if(newQty && !isNaN(newQty)) {
+                items[i].qty = parseInt(newQty);
+                items[i].total = items[i].price * items[i].qty;
+                render();
+            }
+        }
+
+        function removeItem(i) {
+            items.splice(i, 1);
+            render();
+        }
+
         function toggleReturn() {
             isReturn = !isReturn;
-            document.getElementById('bodyTag').style.backgroundColor = isReturn ? '#fff0f0' : '#e2e8f0';
-            showNotice(isReturn ? "وضع المرتجع" : "وضع البيع");
+            const btn = document.getElementById('returnToggleBtn');
+            const body = document.getElementById('bodyTag');
+            
+            if(isReturn) {
+                btn.innerText = "🔄 وضع المرتجع (إضافة للمخزن)";
+                btn.classList.add('active');
+                body.style.backgroundColor = '#fff0f0';
+                showNotice("تم تفعيل وضع المرتجع");
+            } else {
+                btn.innerText = "🔄 وضع البيع (خصم من المخزن)";
+                btn.classList.remove('active');
+                body.style.backgroundColor = '#e2e8f0';
+                showNotice("تم تفعيل وضع البيع");
+            }
         }
 
         async function finish() {
-            if(items.length === 0) return showNotice("الفاتورة فارغة!");
+            if(items.length === 0) return showNotice("يجب إضافة منتجات أولاً!");
+            
+            const btnSave = document.querySelector('.btn-save-print');
+            btnSave.disabled = true;
+            btnSave.innerText = "جاري الحفظ...";
+            
             try {
+                // 1. تحديث المخزون
                 for(let item of items) {
                     if(item.id && cloudProducts[item.id]) {
-                        let newStock = isReturn ? (cloudProducts[item.id].stock + item.qty) : (cloudProducts[item.id].stock - item.qty);
+                        let currentStock = parseInt(cloudProducts[item.id].stock) || 0;
+                        let newStock = isReturn ? (currentStock + item.qty) : (currentStock - item.qty);
                         await db.ref("products/" + item.id).update({ stock: newStock });
                     }
                 }
+
+                // 2. تسجيل العملية في السجل
                 let totalVal = items.reduce((a, b) => a + b.total, 0);
                 let invNumber = document.getElementById('invNum').innerText;
+                
                 await db.ref("history").push({
                     invoiceNum: invNumber,
                     date: new Date().toLocaleDateString('en-CA'),
@@ -395,9 +430,27 @@
                     type: isReturn ? "return" : "sale",
                     items: items
                 });
-                setTimeout(() => { window.print(); location.reload(); }, 500);
-            } catch(e) { showNotice("خطأ في الشبكة!"); }
+
+                showNotice("تم الحفظ بنجاح، جاري الطباعة...");
+                
+                // 3. الطباعة وإعادة التحميل
+                setTimeout(() => { 
+                    window.print(); 
+                    location.reload(); 
+                }, 1000);
+
+            } catch(e) { 
+                console.error(e);
+                showNotice("فشل الحفظ: تحقق من اتصالك");
+                btnSave.disabled = false;
+                btnSave.innerText = "✅ حفظ الفاتورة وطباعة";
+            }
         }
+
+        // إغلاق قائمة البحث عند الضغط خارجها
+        document.addEventListener('click', (e) => {
+            if (e.target !== pSearchInput) resBox.style.display = "none";
+        });
     </script>
 </body>
 </html>
