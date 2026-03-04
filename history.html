@@ -7,58 +7,173 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Cairo', sans-serif; background: #f0f2f5; padding: 10px; text-align: center; margin: 0; overflow-x: hidden; }
-        .nav { margin-bottom: 25px; padding-top: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-        .nav a, .nav button { text-decoration: none; color: #fff; background: #4b0082; padding: 10px 18px; border-radius: 25px; font-weight: bold; font-size: 13px; border: none; cursor: pointer; font-family: 'Cairo'; }
-        
-        #postPrintAction { 
-            display: none; 
-            background: #ff8c00; 
-            color: white; 
-            padding: 15px; 
-            margin: 10px auto; 
-            border-radius: 10px; 
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+        :root {
+            --primary: #4b0082;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --light-bg: #f8f9fa;
         }
 
-        .summary-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; padding: 0 5px; }
-        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-bottom: 5px solid #4b0082; }
-        .card h2 { margin: 0; color: #666; font-size: 13px; font-weight: bold; }
-        .card p { margin: 10px 0 0; font-size: 16px; font-weight: 900; color: #4b0082; }
-        .card.profit { border-bottom-color: #28a745; }
-        .card.profit p { color: #28a745; }
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background: #f0f2f5; 
+            padding: 10px; 
+            text-align: center; 
+            margin: 0; 
+            overflow-x: hidden; 
+            color: #333;
+        }
 
-        .container { width: 100%; max-width: 1000px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+        /* تحسين النافبار */
+        .nav { 
+            background: white;
+            padding: 12px;
+            margin-bottom: 20px;
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 10px; 
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .nav a, .nav button { 
+            text-decoration: none; 
+            color: #fff; 
+            background: var(--primary); 
+            padding: 10px 20px; 
+            border-radius: 50px; 
+            font-weight: 600; 
+            font-size: 14px; 
+            border: none; 
+            cursor: pointer; 
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .nav a:hover, .nav button:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        #postPrintAction { 
+            display: none; 
+            background: linear-gradient(135deg, #ff8c00, #ff4500); 
+            color: white; 
+            padding: 20px; 
+            margin: 15px auto; 
+            border-radius: 15px; 
+            width: 95%;
+            max-width: 450px;
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.4);
+            animation: slideDown 0.4s ease-out;
+        }
+
+        /* تحسين كروت الإحصائيات */
+        .summary-cards { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+            margin-bottom: 25px; 
+            padding: 0 5px; 
+        }
+        .card { 
+            background: white; 
+            padding: 18px 10px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06); 
+            border-right: 6px solid var(--primary); 
+            transition: 0.3s;
+        }
+        .card h2 { margin: 0; color: #777; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card p { margin: 8px 0 0; font-size: 18px; font-weight: 900; color: var(--primary); }
+        .card.profit { border-right-color: var(--success); }
+        .card.profit p { color: var(--success); }
+
+        .container { 
+            width: 100%; 
+            max-width: 1100px; 
+            margin: auto; 
+            background: white; 
+            padding: 20px 10px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            box-sizing: border-box; 
+        }
         
-        .charts-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }
-        .chart-box { background: white; padding: 10px; border-radius: 12px; border: 1px solid #eee; min-height: 250px; width: 100%; box-sizing: border-box; }
+        .charts-container { display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px; }
+        .chart-box { 
+            background: #fff; 
+            padding: 15px; 
+            border-radius: 18px; 
+            border: 1px solid #f0f0f0; 
+            min-height: 280px; 
+            width: 100%; 
+            box-sizing: border-box; 
+        }
 
-        .table-responsive { width: 100%; overflow-x: auto; margin-top: 15px; border-radius: 8px; border: 1px solid #eee; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th, td { padding: 12px 8px; border-bottom: 1px solid #eee; text-align: center; font-size: 13px; }
-        th { background: #4b0082; color: white; white-space: nowrap; font-weight: bold; }
-        .type-sale { color: #28a745; font-weight: bold; }
-        .type-return { color: #d9534f; font-weight: bold; }
+        /* تحسين الجدول للموبايل */
+        .table-responsive { 
+            width: 100%; 
+            overflow-x: auto; 
+            margin-top: 15px; 
+            border-radius: 12px; 
+            border: 1px solid #eee; 
+            -webkit-overflow-scrolling: touch;
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        th, td { padding: 15px 10px; border-bottom: 1px solid #f5f5f5; text-align: center; font-size: 13px; }
+        th { background: var(--primary); color: white; white-space: nowrap; font-weight: 700; position: sticky; top: 0; }
+        
+        tr:hover { background-color: #fcfaff; }
+        .type-sale { color: var(--success); font-weight: bold; background: #e9f7ef; padding: 4px 10px; border-radius: 20px; }
+        .type-return { color: var(--danger); font-weight: bold; background: #fdf2f2; padding: 4px 10px; border-radius: 20px; }
 
-        .archive-status { background: #ffc107; color: #000; padding: 6px 15px; border-radius: 20px; display: inline-block; margin-bottom: 15px; font-size: 12px; font-weight: bold; display: none; }
+        .archive-status { 
+            background: var(--warning); 
+            color: #000; 
+            padding: 8px 20px; 
+            border-radius: 50px; 
+            margin-bottom: 20px; 
+            font-size: 14px; 
+            font-weight: 700; 
+            display: none; 
+            box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-action {
+            border: none;
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cairo';
+            font-size: 12px;
+            transition: 0.2s;
+        }
+        .btn-edit { color: var(--secondary); border: 1px solid #ddd; }
+        .btn-edit:hover { background: var(--secondary); color: white; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         @media print {
             .nav, .summary-cards, .charts-container, .no-print, #postPrintAction { display: none !important; }
             .container { box-shadow: none !important; border: none !important; width: 100% !important; margin: 0 !important; }
-            table { border: 1px solid #000 !important; }
-            th, td { border: 1px solid #000 !important; font-size: 12px !important; color: #000 !important; }
+            table { border: 1px solid #000 !important; width: 100%; }
+            th, td { border: 1px solid #ccc !important; font-size: 12px !important; color: #000 !important; }
         }
 
         @media (min-width: 768px) {
             .charts-container { flex-direction: row; }
-            .chart-box { flex: 1; }
-            .summary-cards { grid-template-columns: repeat(4, 1fr); gap: 15px; }
-            .card p { font-size: 20px; }
-            th, td { font-size: 14px; }
+            .summary-cards { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+            .card p { font-size: 24px; }
+            th, td { font-size: 15px; }
+            .container { padding: 30px; }
         }
     </style>
 </head>
@@ -67,15 +182,17 @@
     <div class="nav no-print">
         <a href="index.html">🏠 الفاتورة</a>
         <a href="products.html">📦 المخزن</a>
-        <button onclick="smartPrintTrigger()" style="background:#28a745;">🖨️ طباعة</button>
+        <button onclick="smartPrintTrigger()" style="background:var(--success);">🖨️ طباعة السجل</button>
         <button id="toggleViewBtn" onclick="toggleArchiveView()" style="background:#6c757d;">📂 الأرشيف</button>
-        <button id="archiveBtn" onclick="archiveCurrentHistory()" style="background:#dc3545;">🧹 تصفير</button>
+        <button id="archiveBtn" onclick="archiveCurrentHistory()" style="background:var(--danger);">🧹 تصفير السجل</button>
     </div>
 
     <div id="postPrintAction">
-        <p style="margin:0 0 10px 0; font-weight:bold;">هل تمت الطباعة بنجاح؟</p>
-        <button onclick="archiveCurrentHistory(true)" style="background:white; color:#ff8c00; border:none; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">نعم، تصفير السجل ✅</button>
-        <button onclick="hidePrintAction()" style="background:transparent; color:white; border:1px solid white; margin-right:5px; padding:8px 15px; border-radius:5px; cursor:pointer;">لا</button>
+        <p style="margin:0 0 12px 0; font-weight:bold; font-size:16px;">تمت الطباعة؟ هل تريد مسح السجل الحالي؟</p>
+        <div style="display: flex; justify-content: center; gap: 10px;">
+            <button onclick="archiveCurrentHistory(true)" style="background:white; color:var(--danger); border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">نعم، تصفير ✅</button>
+            <button onclick="hidePrintAction()" style="background:rgba(255,255,255,0.2); color:white; border:1px solid white; padding:10px 20px; border-radius:8px; cursor:pointer;">إلغاء</button>
+        </div>
     </div>
 
     <div class="summary-cards">
@@ -98,7 +215,7 @@
     </div>
 
     <div class="container" id="printableArea">
-        <div id="archiveLabel" class="archive-status">⚠️ وضع الأرشيف</div>
+        <div id="archiveLabel" class="archive-status">⚠️ عرض الأرشيف (بيانات قديمة)</div>
         
         <div class="no-print">
             <div class="charts-container">
@@ -111,7 +228,7 @@
             </div>
         </div>
 
-        <h3 id="tableTitle" style="font-size: 18px; color: #4b0082;">📝 سجل العمليات الحالي</h3>
+        <h3 id="tableTitle" style="font-size: 20px; color: var(--primary); margin-top: 0;">📝 سجل العمليات الحالي</h3>
         <div class="table-responsive">
             <table id="mainTable">
                 <thead>
@@ -122,11 +239,11 @@
                         <th>الإجمالي</th>
                         <th>التكلفة</th>
                         <th>الربح</th>
-                        <th>الأصناف</th>
+                        <th>الأصناف المباعة</th>
                     </tr>
                 </thead>
                 <tbody id="historyTable">
-                    <tr><td colspan="7">جاري تحميل البيانات...</td></tr>
+                    <tr><td colspan="7" style="padding: 40px;">جاري جلب البيانات من السحابة...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -150,14 +267,14 @@
         let isArchiveView = false;
         let currentHistoryData = [];
 
-        // تشغيل الجلب فور التحميل
+        // تحميل المخزن أولاً لحساب التكلفة بدقة
         db.ref("products").on("value", snapshot => {
             allProducts = snapshot.val() || {};
             loadHistory();
         });
 
         async function smartPrintTrigger() {
-            if (currentHistoryData.length === 0) return alert("السجل فارغ!");
+            if (currentHistoryData.length === 0) return alert("السجل فارغ حالياً!");
             document.getElementById('postPrintAction').style.display = 'block';
             window.print();
         }
@@ -170,7 +287,11 @@
             if (isArchiveView) return;
             db.ref("history").on("value", snapshot => {
                 const data = snapshot.val() || {};
-                currentHistoryData = Object.values(data).reverse();
+                // تحويل الكائن إلى مصفوفة مع الحفاظ على مفتاح Firebase للتعديل
+                currentHistoryData = Object.keys(data).map(key => ({
+                    firebaseKey: key,
+                    ...data[key]
+                })).reverse();
                 updateUI(currentHistoryData);
             });
         }
@@ -180,10 +301,13 @@
             let combined = [];
             if (snapshot.exists()) {
                 Object.values(snapshot.val()).forEach(arc => {
-                    if (arc.data) combined = combined.concat(Object.values(arc.data));
+                    if (arc.data) {
+                        const items = Object.keys(arc.data).map(k => ({ firebaseKey: k, ...arc.data[k] }));
+                        combined = combined.concat(items);
+                    }
                 });
             }
-            combined.reverse();
+            combined.sort((a,b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time));
             updateUI(combined);
         }
 
@@ -197,7 +321,6 @@
             if (inv.items) {
                 inv.items.forEach(item => {
                     let costPerUnit = parseFloat(item.cost || 0);
-                    // إذا لم تكن التكلفة مخزنة في الفاتورة، نبحث عنها في المخزن
                     if (costPerUnit === 0) {
                         const pKey = Object.keys(allProducts).find(k => allProducts[k].name === item.name);
                         if (pKey) costPerUnit = parseFloat(allProducts[pKey].cost || 0);
@@ -243,7 +366,7 @@
             tbody.innerHTML = "";
             
             if (data.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='7'>لا توجد عمليات مسجلة</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='7'>لا توجد بيانات لعرضها</td></tr>";
                 return;
             }
 
@@ -251,24 +374,39 @@
                 const cost = calculateInvCost(inv);
                 const total = parseFloat(inv.total || 0);
                 const profit = inv.type === 'return' ? (total + cost) : (total - cost);
-                const details = inv.items ? inv.items.map(i => `${i.name} (${i.qty})`).join(' - ') : '---';
+                const details = inv.items ? inv.items.map(i => `${i.name} (x${i.qty})`).join(' | ') : '---';
 
                 tbody.innerHTML += `
                     <tr>
-                        <td style="font-weight:bold; color:#4b0082;">#${inv.invoiceNum || 'بدون'}</td>
-                        <td style="font-size:11px;">${inv.date || ''}<br>${inv.time || ''}</td>
-                        <td class="${inv.type === 'sale' ? 'type-sale' : 'type-return'}">${inv.type === 'sale' ? 'بيع' : 'مرتجع'}</td>
-                        <td style="font-weight:bold;">${total.toFixed(2)}</td>
-                        <td style="color:#666;">${cost.toFixed(2)}</td>
-                        <td style="font-weight:bold; color:${profit >= 0 ? 'green' : 'red'}">${profit.toFixed(2)}</td>
-                        <td style="font-size:11px; max-width:150px; color:#555;">${details}</td>
+                        <td style="font-weight:900; color:var(--primary);">#${inv.invoiceNum || 'N/A'}</td>
+                        <td style="font-size:11px; color:#555;">
+                            <span style="display:block; font-weight:bold;">${inv.date || ''}</span>
+                            <span>${inv.time || ''}</span>
+                        </td>
+                        <td><span class="${inv.type === 'sale' ? 'type-sale' : 'type-return'}">${inv.type === 'sale' ? 'بيع' : 'مرتجع'}</span></td>
+                        <td style="font-weight:900; font-size:15px;">${total.toFixed(2)}</td>
+                        <td style="color:#888;">${cost.toFixed(2)}</td>
+                        <td style="font-weight:900; color:${profit >= 0 ? 'var(--success)' : 'var(--danger)'}">${profit.toFixed(2)}</td>
+                        <td style="font-size:11px; max-width:200px; line-height:1.4; color:#444;">
+                            ${details}
+                            <div class="no-print" style="margin-top:8px;">
+                                <button class="btn-action btn-edit" onclick="editOldInvoice('${inv.firebaseKey}')">✏️ تعديل</button>
+                            </div>
+                        </td>
                     </tr>
                 `;
             });
         }
 
+        function editOldInvoice(key) {
+            // توجيه المستخدم لصفحة الفاتورة مع مفتاح التعديل (يمكن تطويرها لاحقاً لفتح نافذة منبثقة)
+            if(confirm("هل تريد الانتقال لصفحة الفاتورة لتعديل هذه العملية؟")) {
+                window.location.href = `index.html?edit=${key}`;
+            }
+        }
+
         function renderCharts(dailyMap, productMap) {
-            const labels = Object.keys(dailyMap).sort();
+            const labels = Object.keys(dailyMap).sort().slice(-7); // آخر 7 أيام
             const values = labels.map(l => dailyMap[l]);
 
             if (dailyChart) dailyChart.destroy();
@@ -276,7 +414,14 @@
                 type: 'line',
                 data: {
                     labels: labels,
-                    datasets: [{ label: 'المبيعات اليومية', data: values, borderColor: '#4b0082', fill: false, tension: 0.3 }]
+                    datasets: [{ 
+                        label: 'المبيعات (آخر 7 أيام)', 
+                        data: values, 
+                        borderColor: '#4b0082', 
+                        backgroundColor: 'rgba(75, 0, 130, 0.1)',
+                        fill: true, 
+                        tension: 0.4 
+                    }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
@@ -287,26 +432,40 @@
                 type: 'bar',
                 data: {
                     labels: topProducts.map(p => p[0]),
-                    datasets: [{ label: 'الأكثر مبيعاً (قطع)', data: topProducts.map(p => p[1]), backgroundColor: '#f72585' }]
+                    datasets: [{ 
+                        label: 'الأكثر طلباً (كمية)', 
+                        data: topProducts.map(p => p[1]), 
+                        backgroundColor: '#f72585',
+                        borderRadius: 5
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    indexAxis: 'y'
+                }
             });
         }
 
         function toggleArchiveView() {
             isArchiveView = !isArchiveView;
             document.getElementById("archiveLabel").style.display = isArchiveView ? "inline-block" : "none";
-            document.getElementById("toggleViewBtn").innerText = isArchiveView ? "🏠 الحالي" : "📂 الأرشيف";
+            document.getElementById("toggleViewBtn").innerText = isArchiveView ? "🏠 العودة للحالي" : "📂 فتح الأرشيف";
             document.getElementById("tableTitle").innerText = isArchiveView ? "📂 سجل العمليات المؤرشف" : "📝 سجل العمليات الحالي";
             if (isArchiveView) loadArchivedData(); else loadHistory();
         }
 
         async function archiveCurrentHistory(skipConfirm = false) {
-            if (!skipConfirm && !confirm("هل تريد تصفير ونقل السجل الحالي للأرشيف؟")) return;
+            if (!skipConfirm && !confirm("سيتم نقل السجل الحالي للأرشيف وتصفيره، هل أنت متأكد؟")) return;
             const snap = await db.ref("history").once("value");
             if (snap.exists()) {
-                await db.ref("archived_history").push({ archivedAt: new Date().toLocaleString(), data: snap.val() });
+                await db.ref("archived_history").push({ 
+                    archivedAt: new Date().toLocaleString(), 
+                    data: snap.val() 
+                });
                 await db.ref("history").remove();
+                currentHistoryData = [];
+                updateUI([]);
             }
             hidePrintAction();
         }
