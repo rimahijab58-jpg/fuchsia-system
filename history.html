@@ -32,6 +32,17 @@
         .type-sale { color: #28a745; font-weight: bold; }
         .type-return { color: #d9534f; font-weight: bold; }
 
+        /* تنسيقات خاصة للطباعة لمنع ظهور الصفحات فارغة */
+        @media print {
+            body { background: white !important; padding: 0 !important; margin: 0 !important; }
+            .nav, .summary-cards, .charts-container, h3 { display: none !important; }
+            .container { box-shadow: none !important; width: 100% !important; max-width: none !important; padding: 0 !important; }
+            .table-responsive { overflow: visible !important; }
+            table { min-width: 100% !important; border: 1px solid #000; }
+            th, td { border: 1px solid #ddd !important; color: black !important; }
+            th { background: #eee !important; color: black !important; }
+        }
+
         @media (min-width: 768px) {
             .charts-container { flex-direction: row; }
             .chart-box { flex: 1; }
@@ -44,6 +55,7 @@
     <div class="nav">
         <a href="index.html">🏠 العودة للفاتورة</a>
         <a href="products.html">📦 إدارة المخزن</a>
+        <button onclick="window.print()" style="background:#28a745; color:white; border:none; padding:10px 20px; border-radius:25px; cursor:pointer; font-weight:bold; font-family:'Cairo'; margin-right:10px;">🖨️ طباعة السجل</button>
     </div>
 
     <div class="summary-cards">
@@ -109,12 +121,10 @@
         const db = firebase.database();
 
         let dailyChart, productChart;
-        let allProducts = {}; // لتخزين التكاليف الحالية من المخزن كاحتياطي
+        let allProducts = {};
 
-        // جلب المنتجات أولاً للحصول على التكاليف الحالية
         db.ref("products").on("value", snapshot => {
             allProducts = snapshot.val() || {};
-            // بعد جلب المنتجات، نجلب السجل
             loadHistory();
         });
 
@@ -133,17 +143,13 @@
             let invCost = 0;
             if(inv.items && Array.isArray(inv.items)) {
                 inv.items.forEach(item => {
-                    // 1. البحث عن التكلفة داخل الفاتورة نفسها (للعمليات الجديدة)
                     let itemCost = parseFloat(item.cost || item.pCost || 0);
-                    
-                    // 2. إذا كانت التكلفة 0، نبحث عنها في المخزن الحالي (للعمليات القديمة)
                     if (itemCost === 0) {
                         const productKey = Object.keys(allProducts).find(k => allProducts[k].name === item.name);
                         if (productKey) {
                             itemCost = parseFloat(allProducts[productKey].cost || 0);
                         }
                     }
-
                     const itemQty = parseInt(item.qty || 0);
                     invCost += (itemCost * itemQty);
                 });
@@ -161,11 +167,7 @@
             data.forEach(inv => {
                 let invCost = calculateInvCost(inv);
                 const currentTotal = parseFloat(inv.total || 0);
-
-                if(inv.type === "return") {
-                    invCost = -Math.abs(invCost);
-                }
-                
+                if(inv.type === "return") invCost = -Math.abs(invCost);
                 const invProfit = currentTotal - invCost;
 
                 if (inv.date === today) {
@@ -176,11 +178,7 @@
                     mSales += currentTotal;
                     mProfit += invProfit;
                 }
-
-                if(inv.date) {
-                    dailyTotals[inv.date] = (dailyTotals[inv.date] || 0) + currentTotal;
-                }
-
+                if(inv.date) dailyTotals[inv.date] = (dailyTotals[inv.date] || 0) + currentTotal;
                 if(inv.items && Array.isArray(inv.items)) {
                     inv.items.forEach(item => {
                         productQuantities[item.name] = (productQuantities[item.name] || 0) + (parseInt(item.qty) || 0);
@@ -203,8 +201,6 @@
             data.slice(0, 100).forEach(inv => {
                 const invCost = calculateInvCost(inv);
                 const currentTotal = parseFloat(inv.total || 0);
-                
-                // حساب الربح: المبيعات - التكلفة
                 let displayedCost = invCost;
                 if(inv.type === 'return') displayedCost = -Math.abs(invCost);
                 const invProfit = currentTotal - displayedCost;
@@ -233,7 +229,6 @@
         function renderCharts(dailyTotals, productQuantities) {
             const dateLabels = Object.keys(dailyTotals).sort();
             const dateValues = dateLabels.map(d => dailyTotals[d]);
-
             if (dailyChart) dailyChart.destroy();
             const ctx1 = document.getElementById('dailySalesChart').getContext('2d');
             dailyChart = new Chart(ctx1, {
@@ -252,10 +247,7 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            const sortedProducts = Object.entries(productQuantities)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 8);
-            
+            const sortedProducts = Object.entries(productQuantities).sort((a, b) => b[1] - a[1]).slice(0, 8);
             if (productChart) productChart.destroy();
             const ctx2 = document.getElementById('productQtyChart').getContext('2d');
             productChart = new Chart(ctx2, {
