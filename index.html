@@ -7,12 +7,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #000;
+            --primary-color: #4b0082;
             --return-color: #d9534f;
-            --edit-color: #f0ad4e;
-            --bg-gray: #f9f9f9;
-            --accent-blue: #5bc0de;
-            --nav-bg: #ffffff;
+            --bg-gray: #f4f7f6;
         }
 
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
@@ -20,20 +17,19 @@
         body { 
             background-color: #e2e8f0; 
             margin: 0; 
-            padding: 15px 10px; 
+            padding: 5px; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            min-height: 100vh;
         }
 
         @media print {
             .no-print { display: none !important; }
             body { background: white; padding: 0; }
-            .container { border: 1px solid #000 !important; box-shadow: none !important; width: 100% !important; margin: 0 !important; }
+            .container { border: 1px solid #000 !important; box-shadow: none !important; width: 100% !important; margin: 0 !important; padding: 10px !important; }
         }
 
-        /* شريط التنقل العلوي - تم تقريب المسافة */
+        /* تحسينات الموبايل */
         .nav-container {
             width: 100%;
             max-width: 650px;
@@ -41,17 +37,19 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
         }
 
         .nav-bar {
-            background: var(--nav-bg);
-            padding: 10px 25px;
-            border-radius: 15px;
+            background: #ffffff;
+            padding: 5px 10px;
+            border-radius: 50px;
             display: flex;
-            gap: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border: 1px solid #e2e8f0;
+            gap: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            align-items: center;
+            width: 100%;
+            justify-content: center;
         }
 
         .nav-item {
@@ -60,146 +58,133 @@
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 16px;
+            gap: 3px;
+            font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            padding: 8px 12px;
+            border-radius: 20px;
             border: none;
             background: none;
-            padding: 5px 12px;
-            border-radius: 8px;
+            white-space: nowrap;
         }
-        .nav-item:hover { background: #f8f9fa; color: #000; }
-        .nav-item span { font-size: 20px; }
+        .nav-item:hover { background: #f0f0f0; }
 
         .btn-return-toggle { 
-            background: #1a1a1a; 
+            background: #333; 
             color: white; 
             border: none; 
-            padding: 8px 25px; 
+            padding: 10px 20px; 
             border-radius: 10px; 
             cursor: pointer; 
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            gap: 8px;
+            width: 100%;
+            justify-content: center;
         }
 
         .container { 
-            width: 650px; 
+            width: 100%;
+            max-width: 650px; 
             background: white; 
-            padding: 30px; 
+            padding: 15px; 
             border: 2px solid #000; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
             position: relative;
-            border-radius: 4px;
         }
 
-        /* تنبيه مخصص مدمج */
-        #customAlert {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 50px;
-            z-index: 10000;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            font-weight: bold;
-            animation: fadeInOut 3s forwards;
+        .google-search-box {
+            margin-top: 25px;
+            border: 1px solid #dfe1e5;
+            border-radius: 24px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            box-shadow: 0 1px 6px rgba(32,33,36,0.28);
         }
+        .google-search-box span { color: #5f6368; font-size: 12px; }
+        .google-search-box .google-logo { font-weight: bold; font-size: 16px; }
 
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, -20px); }
-            15% { opacity: 1; transform: translate(-50%, 0); }
-            85% { opacity: 1; transform: translate(-50%, 0); }
-            100% { opacity: 0; transform: translate(-50%, -20px); }
-        }
-
-        /* رأس الفاتورة */
+        /* تعديل الهيدر للموبايل */
         .receipt-header {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr 1.2fr;
-            align-items: flex-start;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
             border-bottom: 2px solid #000;
             padding-bottom: 15px;
             margin-bottom: 20px;
+            gap: 15px;
         }
 
-        .brand-section { text-align: right; }
-        .brand-section h1 { margin: 0; font-size: 42px; font-weight: 900; line-height: 1; letter-spacing: -1px; }
-        .shop-info { font-size: 13px; color: #333; margin-top: 8px; line-height: 1.6; font-weight: bold; }
+        @media (min-width: 480px) {
+            .receipt-header {
+                display: grid;
+                grid-template-columns: 1.5fr 1fr 1.2fr;
+                text-align: inherit;
+                align-items: start;
+            }
+        }
 
-        .qr-section { text-align: center; }
-        .qr-section img { width: 95px; height: 95px; border: 1px solid #eee; padding: 2px; }
+        .brand-section h1 { margin: 0; font-size: 35px; font-weight: 900; }
+        .shop-info { font-size: 12px; font-weight: bold; line-height: 1.5; }
 
-        .invoice-info { text-align: left; font-size: 13px; font-weight: bold; }
-        .invoice-info p { margin: 2px 0; }
+        .qr-section img { width: 80px; height: 80px; }
 
-        /* مدخلات البيانات */
-        .input-box { background: #fcfcfc; border: 1px dashed #bbb; padding: 20px; margin-bottom: 20px; border-radius: 12px; text-align: right; }
-        .search-container { position: relative; margin-bottom: 12px; }
-        label { font-weight: bold; display: block; margin-bottom: 6px; font-size: 14px; color: #444; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 12px; text-align: center; }
+        .invoice-info { font-size: 12px; font-weight: bold; width: 100%; }
+        .invoice-info p { margin: 5px 0; }
+
+        .input-box { background: #fcfcfc; border: 1px dashed #bbb; padding: 12px; margin-bottom: 15px; border-radius: 10px; position: relative; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; text-align: center; font-size: 16px; }
 
         #searchResult { 
-            position: absolute; width: 100%; background: white; border: 1px solid #ddd; 
-            z-index: 1000; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            border-radius: 8px;
+            position: absolute; width: calc(100% - 24px); background: white; border: 1px solid #ddd; 
+            z-index: 1000; display: none; max-height: 200px; overflow-y: auto; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15); border-radius: 8px; top: 60px;
         }
-        .search-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; text-align: right; display: flex; justify-content: space-between; }
-        .search-item:hover { background: #f8f9fa; }
+        .search-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; text-align: right; display: flex; justify-content: space-between; font-size: 14px; }
 
-        /* الجدول */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #f8f9fa; border: 1px solid #000; padding: 12px; font-weight: bold; font-size: 14px; }
-        td { border: 1px solid #eee; padding: 12px; text-align: center; font-size: 15px; }
+        /* جعل الجدول قابل للتمرير على الموبايل */
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 400px; }
+        th { background: #f8f9fa; border: 1px solid #000; padding: 8px; font-size: 13px; }
+        td { border: 1px solid #eee; padding: 8px; text-align: center; font-size: 13px; }
 
         .total-box { 
-            margin-top: 25px; padding: 20px; border-top: 2px solid #000; border-bottom: 2px solid #000;
-            font-size: 32px; color: #d9534f; font-weight: bold; text-align: center; 
+            margin-top: 20px; padding: 15px; border-top: 2px solid #000; border-bottom: 2px solid #000;
+            font-size: 22px; color: #d9534f; font-weight: bold; text-align: center; 
         }
-
-        .action-btn { border: none; padding: 6px; cursor: pointer; border-radius: 8px; font-size: 16px; margin: 0 3px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; }
-        .btn-edit-row { background: #ffc107; color: #000; }
-        .btn-del-row { background: #d9534f; color: white; }
-
-        .footer-note { margin-top: 20px; font-size: 16px; font-weight: bold; text-align: center; }
 
         .btn-save-print { 
-            background: #28a745; color: white; border: none; padding: 18px; width: 100%; 
-            border-radius: 12px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 25px;
-            display: flex; align-items: center; justify-content: center; gap: 12px;
+            background: #28a745; color: white; border: none; padding: 15px; width: 100%; 
+            border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px;
         }
 
-        .return-mode .container { border-color: var(--return-color); background-color: #fffafa; border-width: 3px; }
-        #returnBadge { display: none; background: var(--return-color); color: white; padding: 10px; font-weight: bold; font-size: 22px; margin-bottom: 20px; border-radius: 6px; text-align: center; }
+        #customAlert {
+            display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+            background: #333; color: white; padding: 8px 15px; border-radius: 20px; z-index: 9999; font-size: 14px;
+        }
     </style>
 </head>
 <body id="bodyTag">
 
-    <div id="customAlert">جاري التحميل...</div>
+    <div id="customAlert">جاري المعالجة...</div>
 
     <div class="nav-container no-print">
         <div class="nav-bar">
-            <!-- روابط الأقسام الأصلية كما كانت -->
-            <button class="nav-item" onclick="location.reload()"><span>🏠</span> فاتورة</button>
-            <button class="nav-item" onclick="location.href='products.html'"><span>📦</span> مخزن</button>
-            <button class="nav-item" onclick="location.href='charts.html'"><span>📊</span> سجل</button>
+            <button class="nav-item" onclick="location.reload()">🏠 فاتورة</button>
+            <button class="nav-item" onclick="location.href='products.html'">📦 مخزن</button>
+            <button class="nav-item" onclick="location.href='history.html'">📊 سجل</button>
         </div>
         <button class="btn-return-toggle" onclick="toggleReturn()">
-            🔄 تفعيل وضع المرتجع
+            🔄 وضع المرتجع
         </button>
     </div>
 
     <div class="container" id="invoice">
-        <div id="returnBadge">فـاتـورة مـرتـجـع 🔄</div>
-        
         <header class="receipt-header">
             <div class="brand-section">
                 <h1>فـوشـيـا</h1>
@@ -209,67 +194,66 @@
                     واتساب: 01287863711
                 </div>
             </div>
-
             <div class="qr-section">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=FuchsiaPOS" alt="QR">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chat.whatsapp.com/EnzS1EbY5BfAl6rQsHqiPK?mode=gi_t" alt="QR">
             </div>
-
             <div class="invoice-info">
-                <p>رقم الفاتورة: <span id="invNum">---</span></p>
+                <p>رقم الفاتورة: <span id="invNum">...</span></p>
                 <p>التاريخ: <span id="invDate">---</span></p>
                 <p>العميل: Cash Customer</p>
             </div>
         </header>
 
         <div class="input-box no-print">
-            <div class="search-container">
-                <label>البحث عن منتج بالاسم:</label>
-                <input type="text" id="pSearch" placeholder="اكتب اسم الصنف هنا..." autocomplete="off">
-                <div id="searchResult"></div>
+            <input type="text" id="pSearch" placeholder="ابحث عن المنتج..." autocomplete="off">
+            <div id="searchResult"></div>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="pPrice" placeholder="السعر">
+                <input type="number" id="pQty" value="1" placeholder="الكمية">
             </div>
-            <div style="display: flex; gap: 15px;">
-                <div style="flex:1">
-                    <label>السعر:</label>
-                    <input type="number" id="pPrice" placeholder="0.00">
-                </div>
-                <div style="flex:1">
-                    <label>الكمية:</label>
-                    <input type="number" id="pQty" value="1" min="1">
-                </div>
-            </div>
-            <button id="addBtn" style="width:100%; background: #4b0082; color:white; border:none; padding:14px; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="addItem()">إضافة الصنف +</button>
+            <button onclick="addItem()" style="width:100%; padding:12px; background:#4b0082; color:white; border:none; border-radius:8px; cursor:pointer; font-weight: bold;">إضافة +</button>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th width="40%">الصنف</th>
-                    <th>سعر</th>
-                    <th>كمية</th>
-                    <th>إجمالي</th>
-                    <th class="no-print" width="15%">إجراء</th>
-                </tr>
-            </thead>
-            <tbody id="invoiceBody"></tbody>
-        </table>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>الصنف</th>
+                        <th>سعر</th>
+                        <th>كمية</th>
+                        <th>إجمالي</th>
+                        <th class="no-print">حذف</th>
+                    </tr>
+                </thead>
+                <tbody id="invoiceBody"></tbody>
+            </table>
+        </div>
 
         <div class="total-box">
-            الإجمالي النهائي: <span id="finalTotal">0</span> ج.م
+            الإجمالي: <span id="finalTotal">0</span> ج.م
         </div>
 
-        <div class="footer-note">شكراً لزيارتكم فوشيا -- شرفتمونا دائماً</div>
+        <div style="text-align: center; margin-top: 15px; font-weight: bold; font-size: 14px;">
+            شكراً لزيارتكم -- شرفتمونا
+        </div>
+
+        <div class="google-search-box">
+            <div class="google-logo">
+                <span style="color: #4285F4;">G</span><span style="color: #EA4335;">o</span><span style="color: #FBBC05;">o</span><span style="color: #4285F4;">g</span><span style="color: #34A853;">l</span><span style="color: #EA4335;">e</span>
+            </div>
+            <span>فوشيا سمسطا</span>
+            <span style="font-size: 16px;">🔍</span>
+        </div>
 
         <button class="btn-save-print no-print" onclick="finish()">
-            <span>💾</span> حفظ وطباعة الفاتورة
+            ✅ حفظ وطباعة الفاتورة
         </button>
     </div>
 
-    <!-- مكتبات Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // تكوين Firebase الأصلي
         const firebaseConfig = {
             apiKey: "AIzaSyCcd740Bwq4XRrMzVPVqI-G4SmpzvCNqlU",
             databaseURL: "https://fuchsia-web-e1ffe-default-rtdb.firebaseio.com",
@@ -279,31 +263,28 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let cloudProducts = {}, items = [], selectedId = null, isReturn = false;
-        
-        // إعداد التاريخ ورقم الفاتورة العشوائي
-        document.getElementById('invDate').innerText = new Date().toLocaleDateString('en-CA');
-        document.getElementById('invNum').innerText = Math.floor(1000 + Math.random() * 9000);
+        let cloudProducts = {}, items = [], isReturn = false, selectedId = null;
 
-        // التزامن مع المخزن السحابي
-        db.ref("products").on("value", s => { 
-            cloudProducts = s.val() || {}; 
+        document.getElementById('invDate').innerText = new Date().toLocaleDateString('en-CA');
+
+        db.ref("history").orderByKey().limitToLast(1).once("value", s => {
+            let nextNum = 1001;
+            if(s.exists()){
+                const lastKey = Object.keys(s.val())[0];
+                const lastInv = s.val()[lastKey];
+                if(lastInv.invoiceNum) nextNum = parseInt(lastInv.invoiceNum) + 1;
+            }
+            document.getElementById('invNum').innerText = nextNum;
         });
 
-        const pSearch = document.getElementById("pSearch");
+        db.ref("products").on("value", s => { cloudProducts = s.val() || {}; });
+
+        const pSearchInput = document.getElementById("pSearch");
         const resBox = document.getElementById("searchResult");
         const priceInput = document.getElementById("pPrice");
         const qtyInput = document.getElementById("pQty");
 
-        function showNotice(msg) {
-            const alertBox = document.getElementById('customAlert');
-            alertBox.innerText = msg;
-            alertBox.style.display = 'block';
-            setTimeout(() => { alertBox.style.display = 'none'; }, 3000);
-        }
-
-        // منطق البحث السحابي
-        pSearch.oninput = function() {
+        pSearchInput.oninput = function() {
             const val = this.value.trim().toLowerCase();
             resBox.innerHTML = "";
             if(!val) { resBox.style.display="none"; return; }
@@ -311,12 +292,12 @@
             Object.keys(cloudProducts).forEach(id => {
                 const p = cloudProducts[id];
                 if(p.name.toLowerCase().includes(val)) {
-                    let d = document.createElement("div"); 
+                    let d = document.createElement("div");
                     d.className="search-item";
-                    d.innerHTML = `<span>${p.name}</span> <b style="color: #888;">(${p.stock} قطعة)</b>`;
+                    d.innerHTML = `<span>${p.name}</span> <b style="color: #888;">(${p.stock})</b>`;
                     d.onclick = () => {
                         selectedId = id;
-                        pSearch.value = p.name;
+                        pSearchInput.value = p.name;
                         priceInput.value = p.price;
                         resBox.style.display = "none";
                         qtyInput.focus();
@@ -327,100 +308,74 @@
             resBox.style.display = resBox.innerHTML ? "block" : "none";
         };
 
+        function showNotice(msg) {
+            const a = document.getElementById('customAlert');
+            a.innerText = msg; a.style.display = 'block';
+            setTimeout(() => a.style.display = 'none', 2000);
+        }
+
         function addItem() {
-            const n = pSearch.value.trim();
-            const p = parseFloat(priceInput.value);
-            const q = parseInt(qtyInput.value);
-            if(!n || isNaN(p) || q <= 0) {
-                showNotice("تأكد من إدخال البيانات بشكل صحيح!");
+            const name = pSearchInput.value.trim();
+            const price = parseFloat(priceInput.value);
+            const qty = parseInt(qtyInput.value);
+
+            if(!name || isNaN(price) || isNaN(qty) || qty <= 0) {
+                showNotice("أكمل البيانات");
                 return;
             }
 
-            items.push({ id: selectedId, name: n, price: p, qty: q, total: p * q });
-            renderTable();
-            clearInputs();
+            items.push({ id: selectedId, name: name, price: price, qty: qty, total: price * qty });
+            render();
+            pSearchInput.value = ""; priceInput.value = ""; qtyInput.value = "1"; selectedId = null;
+            pSearchInput.focus();
         }
 
-        function renderTable() {
-            const b = document.getElementById("invoiceBody");
+        function render() {
+            const b = document.getElementById('invoiceBody');
             let t = 0; b.innerHTML = "";
-            items.forEach((item, index) => {
-                t += item.total;
-                b.innerHTML += `<tr>
-                    <td>${item.name}</td>
-                    <td>${item.price.toFixed(2)}</td>
-                    <td>${item.qty}</td>
-                    <td>${item.total.toFixed(2)}</td>
+            items.forEach((it, i) => {
+                t += it.total;
+                b.innerHTML += `
+                <tr>
+                    <td>${it.name}</td>
+                    <td>${it.price.toFixed(2)}</td>
+                    <td>${it.qty}</td>
+                    <td>${it.total.toFixed(2)}</td>
                     <td class="no-print">
-                        <button class="action-btn btn-edit-row" onclick="editItem(${index})">✏️</button>
-                        <button class="action-btn btn-del-row" onclick="deleteItem(${index})">🗑️</button>
+                        <button style="background:none; border:none; cursor:pointer;" onclick="items.splice(${i},1);render()">❌</button>
                     </td>
                 </tr>`;
             });
-            document.getElementById("finalTotal").innerText = t.toLocaleString('ar-EG');
-        }
-
-        function editItem(index) {
-            const itm = items[index];
-            selectedId = itm.id;
-            pSearch.value = itm.name;
-            priceInput.value = itm.price;
-            qtyInput.value = itm.qty;
-            items.splice(index, 1);
-            renderTable();
-        }
-
-        function deleteItem(index) {
-            items.splice(index, 1);
-            renderTable();
-        }
-
-        function clearInputs() {
-            pSearch.value = ""; priceInput.value = ""; qtyInput.value = "1";
-            selectedId = null; pSearch.focus();
+            document.getElementById('finalTotal').innerText = t.toLocaleString('ar-EG');
         }
 
         function toggleReturn() {
             isReturn = !isReturn;
-            document.getElementById('bodyTag').classList.toggle('return-mode');
-            document.getElementById('returnBadge').style.display = isReturn ? 'block' : 'none';
-            showNotice(isReturn ? "تم تفعيل وضع المرتجع" : "تمت العودة للبيع");
+            document.getElementById('bodyTag').style.backgroundColor = isReturn ? '#fff0f0' : '#e2e8f0';
+            showNotice(isReturn ? "وضع المرتجع" : "وضع البيع");
         }
 
         async function finish() {
-            if(items.length === 0) {
-                showNotice("الفاتورة فارغة!");
-                return;
-            }
-
-            showNotice("جاري حفظ البيانات سحابياً...");
-            
-            // تحديث المخزن في Firebase
-            for(let i of items) {
-                if(i.id && cloudProducts[i.id]) {
-                    let currentStock = cloudProducts[i.id].stock;
-                    // إذا بيع نطرح، إذا مرتجع نجمع
-                    let newStock = isReturn ? currentStock + i.qty : currentStock - i.qty;
-                    await db.ref("products/"+i.id).update({ stock: newStock });
+            if(items.length === 0) return showNotice("الفاتورة فارغة!");
+            try {
+                for(let item of items) {
+                    if(item.id && cloudProducts[item.id]) {
+                        let newStock = isReturn ? (cloudProducts[item.id].stock + item.qty) : (cloudProducts[item.id].stock - item.qty);
+                        await db.ref("products/" + item.id).update({ stock: newStock });
+                    }
                 }
-            }
-
-            let totalVal = parseFloat(document.getElementById("finalTotal").innerText.replace(/[^\d.]/g, ''));
-            
-            // إضافة الفاتورة للسجل في Firebase
-            await db.ref("history").push({
-                invoiceNum: document.getElementById('invNum').innerText,
-                date: new Date().toLocaleString('ar-EG'),
-                total: isReturn ? -totalVal : totalVal,
-                type: isReturn ? "return" : "sale",
-                items: items
-            });
-
-            showNotice("تم الحفظ بنجاح! جاري الطباعة...");
-            setTimeout(() => {
-                window.print();
-                location.reload();
-            }, 1000);
+                let totalVal = items.reduce((a, b) => a + b.total, 0);
+                let invNumber = document.getElementById('invNum').innerText;
+                await db.ref("history").push({
+                    invoiceNum: invNumber,
+                    date: new Date().toLocaleDateString('en-CA'),
+                    time: new Date().toLocaleTimeString('ar-EG'),
+                    total: isReturn ? -totalVal : totalVal,
+                    type: isReturn ? "return" : "sale",
+                    items: items
+                });
+                setTimeout(() => { window.print(); location.reload(); }, 500);
+            } catch(e) { showNotice("خطأ في الشبكة!"); }
         }
     </script>
 </body>

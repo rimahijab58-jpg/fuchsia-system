@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>فوشيا - لوحة الإحصائيات</title>
+    <title>فوشيا - لوحة الإحصائيات والسجل</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; text-align: center; }
@@ -16,8 +16,17 @@
         .card p { margin: 10px 0 0; font-size: 32px; font-weight: bold; color: #333; }
         .card.monthly { border-bottom-color: #f72585; }
 
-        .dashboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .dashboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-bottom: 30px; }
         .chart-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        
+        /* سجل الفواتير التفصيلي */
+        .history-section { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 1050px; margin: auto; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #eee; padding: 12px; text-align: center; font-size: 14px; }
+        th { background-color: #7209b7; color: white; }
+        .row-start { border-top: 2px solid #7209b7; background-color: #fcfcfc; }
+        .text-return { color: #d9534f; font-weight: bold; }
+        .text-sale { color: #28a745; font-weight: bold; }
         h1 { color: #333; margin-bottom: 30px; }
     </style>
 </head>
@@ -51,6 +60,24 @@
         </div>
     </div>
 
+    <div class="history-section">
+        <h3>📄 سجل الفواتير التفصيلي (كل صنف في سطر)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>العميل</th>
+                    <th>المنتج</th>
+                    <th>الكمية</th>
+                    <th>السعر</th>
+                    <th>إجمالي الفاتورة</th>
+                    <th>الحالة</th>
+                </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+        </table>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -67,11 +94,15 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        let dailyChart, productChart; // متغيرات لحفظ الشارات لتحديثها
+
         db.ref("history").on("value", snapshot => {
             const historyData = snapshot.val() || {};
+            const tableBody = document.getElementById("historyTableBody");
+            tableBody.innerHTML = "";
             
             const now = new Date();
-            const todayStr = now.toLocaleDateString('en-CA'); // YYYY-MM-DD
+            const todayStr = now.toLocaleDateString('en-CA');
             const currentMonth = now.getMonth();
             const currentYear = now.getFullYear();
 
@@ -80,36 +111,45 @@
             const dailyTotals = {};
             const productQuantities = {};
 
-            Object.values(historyData).forEach(sale => {
+            // تحويل البيانات لمصفوفة وعكسها لعرض الأحدث فوق
+            const sortedEntries = Object.values(historyData).reverse();
+
+            sortedEntries.forEach(sale => {
                 const saleDate = new Date(sale.date);
                 const saleTotal = parseFloat(sale.total);
+                const isReturn = saleTotal < 0;
 
-                // حساب مبيعات اليوم
-                if (sale.date === todayStr) {
-                    todaySum += saleTotal;
-                }
-
-                // حساب مبيعات الشهر
-                if (saleDate.getMonth() === currentMonth && saleDate.getFullYear() === currentYear) {
-                    monthSum += saleTotal;
-                }
-
-                // للرسم البياني اليومي
+                // تحديث الملخصات
+                if (sale.date === todayStr) todaySum += saleTotal;
+                if (saleDate.getMonth() === currentMonth && saleDate.getFullYear() === currentYear) monthSum += saleTotal;
                 dailyTotals[sale.date] = (dailyTotals[sale.date] || 0) + saleTotal;
 
-                // للرسم البياني للأصناف
+                // إضافة الأسطر للجدول
                 if (sale.items) {
-                    sale.items.forEach(item => {
+                    sale.items.forEach((item, index) => {
+                        // تحديث كميات الأصناف للشارت
                         productQuantities[item.name] = (productQuantities[item.name] || 0) + parseInt(item.qty);
+
+                        let tr = document.createElement("tr");
+                        if (index === 0) tr.className = "row-start"; // بداية فاتورة جديدة
+
+                        tr.innerHTML = `
+                            <td>${index === 0 ? sale.date : ""}</td>
+                            <td>${index === 0 ? "عميل نقدي" : ""}</td>
+                            <td>${item.name}</td>
+                            <td>${item.qty}</td>
+                            <td>${item.price}</td>
+                            <td>${index === 0 ? Math.abs(saleTotal).toLocaleString() + " ج.م" : ""}</td>
+                            <td class="${isReturn ? 'text-return' : 'text-sale'}">${index === 0 ? (isReturn ? "مرتجع 🔄" : "بيع ✅") : ""}</td>
+                        `;
+                        tableBody.appendChild(tr);
                     });
                 }
             });
 
-            // تحديث الأرقام في الكروت
             document.getElementById('todayTotal').innerText = todaySum.toLocaleString();
             document.getElementById('monthTotal').innerText = monthSum.toLocaleString();
 
-            // رسم الشارات (نفس الكود السابق مع تنسيق بسيط)
             renderCharts(dailyTotals, productQuantities);
         });
 
@@ -117,16 +157,18 @@
             const dateLabels = Object.keys(dailyTotals).sort();
             const dateValues = dateLabels.map(d => dailyTotals[d]);
 
-            new Chart(document.getElementById('dailySalesChart'), {
+            if (dailyChart) dailyChart.destroy();
+            dailyChart = new Chart(document.getElementById('dailySalesChart'), {
                 type: 'line',
                 data: {
                     labels: dateLabels,
                     datasets: [{
-                        label: 'المبيعات اليومية',
+                        label: 'صافي المبيعات اليومية',
                         data: dateValues,
                         borderColor: '#7209b7',
                         backgroundColor: 'rgba(114, 9, 183, 0.1)',
-                        fill: true
+                        fill: true,
+                        tension: 0.3
                     }]
                 }
             });
@@ -134,12 +176,13 @@
             const productLabels = Object.keys(productQuantities);
             const productValues = productLabels.map(p => productQuantities[p]);
 
-            new Chart(document.getElementById('productQtyChart'), {
+            if (productChart) productChart.destroy();
+            productChart = new Chart(document.getElementById('productQtyChart'), {
                 type: 'bar',
                 data: {
                     labels: productLabels,
                     datasets: [{
-                        label: 'عدد القطع',
+                        label: 'عدد القطع المباعة',
                         data: productValues,
                         backgroundColor: '#f72585'
                     }]
