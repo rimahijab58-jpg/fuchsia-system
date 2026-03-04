@@ -373,8 +373,13 @@
                     items: items
                 });
 
-                window.print();
-               location.reload();
+  		window.print();
+
+setTimeout(() => {
+    location.reload();
+}, 1000);
+
+
             } catch(e) { 
                 console.error(e);
                 showNotice("حدث خطأ أثناء الحفظ!"); 
